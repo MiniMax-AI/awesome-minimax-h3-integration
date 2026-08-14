@@ -4,6 +4,7 @@ The official index of open-weight variants, quantizations, text encoders, compon
 
 <div align="center">
 
+[![MiniMax][mm-shield]][mm-url]
 [![Model][hf-shield]][hf-url]
 [![GitHub][gh-shield]][gh-url]
 [![ComfyUI][comfy-shield]][comfy-url]
@@ -13,8 +14,6 @@ The official index of open-weight variants, quantizations, text encoders, compon
 > **Scope.** This page merges MiniMax's own ecosystem scan (GitHub + Hugging Face, snapshot **2026-08-13**) with the community-curated [`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3). It is a *pointer index*, not an endorsement: third-party weights and nodes are listed because people use them, not because MiniMax has validated them. Where a file needs a patched ComfyUI, an extra custom node, or has no stated license, that is called out inline.
 >
 > **Sizes are binary units** — `GiB = bytes / 1024³`, `MiB = bytes / 1024²` — which is what your OS, `du`, and the Hugging Face UI report. (Community lists often print these same numbers labelled "GB"; the numbers agree, the label does not.)
->
-> **Out of scope for this page:** adult / uncensored derivatives, alignment-bypassed text encoders, and LoRAs of copyrighted characters. They exist and the community list enumerates them; an official index does not.
 
 <details>
 <summary><b>Table of Contents</b></summary>
@@ -42,7 +41,7 @@ The official index of open-weight variants, quantizations, text encoders, compon
 * [Workflow & Technical Notes](#wf)
 * [Compatibility, Patches & Licensing](#compat)
 * [Quick Pick](#quickpick)
-* [Acknowledgements](#credits)
+* [Sources](#credits)
 
 </details>
 
@@ -57,7 +56,7 @@ The official index of open-weight variants, quantizations, text encoders, compon
 
 <a id="models"></a>
 
-## ▓ Models
+## Models
 
 MiniMax-H3 is an omni-modal generative system. It reads multimodal context — text, images, video, audio — in one unified pass, and generates video with **native stereo audio**, up to **2K** resolution and **15 seconds** per clip. Two base variants ship:
 
@@ -68,12 +67,12 @@ The two are separate checkpoints of identical size. FL2VA was trained only on ke
 
 <a id="checkpoints"></a>
 
-### ▣ Checkpoints
+### Checkpoints
 
 | Source | What it is | Files | Total |
 | :--- | :--- | :---: | ---: |
-| [MiniMaxAI/MiniMax-H3](https://huggingface.co/MiniMaxAI/MiniMax-H3) | Original diffusers weights — FL2VA / Ref2VA transformers (13 shards each) + video VAE | 104 | 464.1 GiB |
-| [Comfy-Org/MiniMax-H3](https://huggingface.co/Comfy-Org/MiniMax-H3) | ComfyUI-repackaged single-file weights, all precisions | — | — |
+| [MiniMaxAI/MiniMax-H3](https://huggingface.co/MiniMaxAI/MiniMax-H3) | Original diffusers weights — `transformer/` (FL2VA) and `transformer_ref/` (Ref2VA) at 14 shards / 61.73 GiB each, plus text encoder, video VAE, audio VAE, and self-contained `FL2VA/` and `Ref2VA/` pipeline folders | 280 | 464.2 GiB |
+| [Comfy-Org/MiniMax-H3](https://huggingface.co/Comfy-Org/MiniMax-H3) | ComfyUI-repackaged single-file weights — 10 diffusion models, 3 text encoders, video + audio VAE | 17 | 433.2 GiB |
 
 | Variant | Name | Precision | Size | Download |
 | :--- | :--- | :---: | :---: | :---: |
@@ -90,9 +89,9 @@ The two are separate checkpoints of identical size. FL2VA was trained only on ke
 
 **"Pruned"** means AdaLN-pruned: roughly 40 % smaller, ComfyUI-only, and the base for most consumer-GPU quants below. `pruned_int8_convrot` at **19.53 GiB** is the de-facto default for 24 GB cards.
 
-<p id="turbo" align="center">· · · · · · · · · · · · · ·</p>
+<a id="turbo"></a>
 
-### ▣ Turbo (Acceleration LoRA)
+### Turbo (Acceleration LoRA)
 
 Step-distilled LoRAs that render joint video + synchronized stereo audio in **4 sampling steps** instead of ~20. Two names, one distillation line: [`ModelTC/Minimax-H3-Turbo`](https://github.com/ModelTC/Minimax-H3-Turbo) (Apache-2.0, "distill MiniMax-H3 into 4 steps") is the training side, [`lightx2v/Minimax-h3-Turbo`](https://huggingface.co/lightx2v/Minimax-h3-Turbo) is the weight distribution. The DMD training config is public at `configs/minimax_h3/dmd`: **1344×768, `video_flow_shift=6`, `audio_flow_shift=3`, LoRA alpha 128, 4 steps**.
 
@@ -154,9 +153,9 @@ Audio at 4 steps can crackle. The [dual-clock Euler sampler](https://github.com/
 
 *larryvrh also publishes 11 raw training checkpoints (`.bin`, 7.26–10.17 GiB: step 149/490/729/850/922, v2 step 298, v3 step 300, v4 step 150/600, v5 step 600) — [repo](https://huggingface.co/larryvrh/MiniMax-H3-Turbo-Lora/tree/main).*
 
-<p id="quants" align="center">══════════════════════════════════</p>
+<a id="quants"></a>
 
-### ▣ Quantized Models
+### Quantized Models
 
 Unified tables for FL2VA and Ref2VA. **Pruned** marks AdaLN-pruned checkpoints (smaller, ComfyUI-only). **Method** is the quantization scheme. When several people published the same quant, the sources are joined with `┊`.
 
@@ -250,7 +249,7 @@ A community repack that carries FL2VA **and** Ref2VA in every combination, so yo
 
 </details>
 
-<p id="gguf" align="center">· · · · · · · · · · · · · ·</p>
+<a id="gguf"></a>
 
 #### GGUF Quantized Models
 
@@ -330,7 +329,7 @@ GGUF is the finest-grained ladder available for H3 — useful when you need to l
 
 `DmitryDB` also publishes stock-compatible quants of community **fine-tunes** of H3 — fine-tuned QKV weights in blocks 0–31 preserved alongside a tested quantization layout, no custom node or core patch required (the ConvRot / NVFP4 tiers match the base-model tiers exactly: 21.91 / 20.94 / 13.60 / 10.86 GiB, plus a ⚠️ DT-sQKV build at 21.00 GiB).
 
-These are third-party fine-tunes and several of them target adult content, so they are not itemised here. Browse [`DmitryDB`'s model list](https://huggingface.co/DmitryDB) directly, or see [`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3) for the unfiltered index.
+The fine-tunes themselves are third-party and are not itemised here; browse [`DmitryDB`'s model list](https://huggingface.co/DmitryDB) directly for the current set.
 
 </details>
 
@@ -345,13 +344,13 @@ These are third-party fine-tunes and several of them target adult content, so th
 * **`DiffSynth-Studio/MiniMax-H3-NF4`** bundles NF4 TE + video VAE + audio VAE. Requires [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio); the project states a **minimum of 8 GB VRAM** on this path.
 * **`WaveCut/MiniMax-H3-OrbitQuant-W4A4`** bundles a quantized TE and FP32 VAE copies, and requires the [`ComfyUI-OrbitQuant`](https://github.com/iamwavecut/ComfyUI-OrbitQuant/tree/feature/minimax-h3-comfyui) node — the W4A4 path is not loadable without it. [Workflow JSON](https://huggingface.co/WaveCut/MiniMax-H3-OrbitQuant-W4A4/resolve/main/comfyui/workflows/MiniMax-H3-OrbitQuant-T2VA.json).
 
-<p id="text-encoder" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
+<a id="text-encoder"></a>
 
-## ▓ Text Encoders
+## Text Encoders
 
 MiniMax-H3 conditions on **Qwen3-VL-32B** for both text and vision. On a 24 GB card the text encoder is usually the *second* thing you have to shrink after the DiT, so it gets its own ladder.
 
-### ▣ Comfy-Org (official repackage)
+### Comfy-Org (official repackage)
 
 | Model | Precision | Size | Download |
 | :--- | :---: | :---: | :--- |
@@ -361,7 +360,7 @@ MiniMax-H3 conditions on **Qwen3-VL-32B** for both text and vision. On a 24 GB c
 
 The `nvfp4_awq` build at **14.61 GiB** is the smallest official TE and the one to pair with a pruned INT8 DiT on a 24 GB card.
 
-### ▣ Community quantizations
+### Community quantizations
 
 | Model | Precision | Size | Source |
 | :--- | :---: | :---: | :--- |
@@ -377,15 +376,13 @@ The `nvfp4_awq` build at **14.61 GiB** is the smallest official TE and the one t
 
 † `Abiray`'s `nvfp4_awq` file is byte-for-byte the size of Comfy-Org's **INT8** build, not of an NVFP4 one. Check the file before assuming it is a smaller download.
 
-⚠️ **Alignment-bypassed ("uncensored") text encoders exist in the community.** They are deliberately not listed here; see [`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3) if you need the unfiltered index.
+<a id="components"></a>
 
-<p id="components" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
-
-## ▓ Separated Components
+## Separated Components
 
 <a id="components-vae"></a>
 
-### ▣ VAE (video & audio)
+### VAE (video & audio)
 
 Both VAEs are **required** for every generation workflow — H3 decodes video and audio through separate autoencoders.
 
@@ -399,9 +396,9 @@ Both VAEs are **required** for every generation workflow — H3 decodes video an
 
 The `fp8mix` video VAE (**2.60 GiB**) plus the `bf16` audio VAE (**289 MiB**) save roughly 2.5 GiB over the official pair — worth taking on a 12–16 GB card, where the VAE competes with the DiT for the same headroom.
 
-<p id="tae" align="center">· · · · · · · · · · · · · ·</p>
+<a id="tae"></a>
 
-### ▣ Tiny Autoencoder (TAE) — previews only
+### Tiny Autoencoder (TAE) — previews only
 
 A quickly-trained 2D tiny VAE by [Kijai](https://huggingface.co/Kijai/MiniMax-H3-TAE). The author's own assessment: not a great outcome, but it still beats `latent2rgb` for previews. **9 MiB.** Currently only usable through the `ModelPreviewOverride` node in [ComfyUI-KJNodes](https://github.com/kijai/ComfyUI-KJNodes).
 
@@ -411,7 +408,7 @@ A quickly-trained 2D tiny VAE by [Kijai](https://huggingface.co/Kijai/MiniMax-H3
 
 <a id="imagevae"></a>
 
-### ▣ Image VAE (single-frame)
+### Image VAE (single-frame)
 
 An experimental image-specialised H3 VAE that decodes a single temporal latent (`T=1`) into one still. Merged checkpoint — no custom node needed.
 
@@ -421,9 +418,9 @@ An experimental image-specialised H3 VAE that decodes a single temporal latent (
 | :--- | :---: | :--- |
 | Single-image VAE (step 1597) | 4.85 GiB | [![][gh-Mamad8]](https://huggingface.co/Mamad8/MiniMax-H3-Image-VAE/resolve/main/minimax_h3_t1_image_vae_step1597.safetensors) |
 
-<p id="cliproj" align="center">· · · · · · · · · · · · · ·</p>
+<a id="cliproj"></a>
 
-### ▣ Clip Projection (ClipProj)
+### Clip Projection (ClipProj)
 
 Learned linear projections that let a **smaller** text encoder drive H3: swap Qwen3-VL-32B for a 4B or 8B model and text-encoder VRAM drops from roughly **15.7 GiB to 4.5 GiB**, with no change to the diffusion model, VAE, or sampler. Two families: **ClipProj** (the swap) and **H3 Control** (identity / zero matrices, i.e. a no-control baseline for A/B testing).
 
@@ -444,9 +441,9 @@ Projection files are fp16, **MIT**-licensed. Requires the [`ComfyUI-ClipProj`](h
 
 **Caveats from the author** — this is described as a proof of concept; the only verified environment is Windows 11 + ComfyUI 0.31.0, and an **INT8 encoder is rejected outright unless it is loaded resident**. Older `h3_*` filenames (with `tap24` / `CONDPROJ` / `int8convrot` suffixes) have moved to [`obsolete/`](https://huggingface.co/NicoLab28/ClipProj-MiniMax-H3/tree/main/obsolete); the canonical names are `mmh3-*-ClipProj*.safetensors`.
 
-<p id="refpatch" align="center">· · · · · · · · · · · · · ·</p>
+<a id="refpatch"></a>
 
-### ▣ Ref Patch — FL2VA that behaves more like Ref2VA
+### Ref Patch — FL2VA that behaves more like Ref2VA
 
 Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and stores the differences as a single 148 MiB patch, letting the lighter FL2VA checkpoint partially mimic Ref2VA behaviour. Apache-2.0. Requires the [`ComfyUI-MiniMaxH3_Ref-Patch`](https://github.com/lihaoyun6/ComfyUI-MiniMaxH3_Ref-Patch) node.
 
@@ -456,13 +453,13 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 
 *If you want the full Ref2VA conditioning surface rather than an approximation, use the [hybrid loader](#nodes) instead — it merges the two checkpoints tensor-group by tensor-group.*
 
-<p id="lora" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
+<a id="lora"></a>
 
-## ▓ Style & Utility LoRA
+## Style & Utility LoRA
 
 Acceleration LoRAs live in [Turbo](#turbo). This section covers everything else.
 
-### ▣ Styles
+### Styles
 
 | LoRA | Size | What it does |
 | :--- | :---: | :--- |
@@ -470,13 +467,13 @@ Acceleration LoRAs live in [Turbo](#turbo). This section covers everything else.
 | [![][gh-fal]](https://huggingface.co/fal/research-mini-max-h3-realism-people-lora) **Realism — People** | 125 MiB | Natural-looking people in everyday scenarios, trained by fal on diverse photo data. Works across T2V / I2V / R2V. |
 | [![][gh-Inner--Reflections]](https://huggingface.co/Inner-Reflections/MiniMax-H3-Looping-Sketch-Anime) **Looping Sketch Anime** | 569 MiB | Hand-drawn 2D outlines, flat colours, white outline, built to loop. Strength **0.75–1.25**; pair with a Turbo LoRA if you want to push toward the high end. |
 
-### ▣ Utility
+### Utility
 
 | LoRA | Size | What it does |
 | :--- | :---: | :--- |
 | [![][gh-lightx2v]](https://huggingface.co/lightx2v/MiniMax-H3-Prompt-Rewriter-LoRA) **Prompt Rewriter** | 3.48 GiB | A Qwen3.6-27B fine-tune that rewrites a short prompt into H3's expected three-part structure. This is a *language-model* LoRA — it does not load into the DiT. |
 
-### ▣ Experimental
+### Experimental
 
 These are research artefacts, not production adapters. Read each card before spending download bandwidth.
 
@@ -485,15 +482,15 @@ These are research artefacts, not production adapters. Read each card before spe
 | [![][gh-bghira]](https://huggingface.co/bghira/minimax-h3-anyflow-wip) **anyflow-wip** | SimpleTuner work-in-progress checkpoints (steps 200 / 300 / 400 / 500 + EMA). Research builds, explicitly not production-tuned. |
 | [![][gh-Kijai]](https://huggingface.co/Kijai/MiniMax-H3-experimental/tree/main/loras) **FL2VA↔Ref2VA delta** | Rank-256 BF16 adapter capturing the difference between the two checkpoints, 2.40 GiB. Mechanically extracted; **no confirmed use case yet**. Same class as the delta-LoRA experiments other authors have published — a randomized-SVD approximation of a weight difference, not a trained LoRA, and not generation-tested. |
 
-⚠️ **Adult / NSFW style and character LoRAs, and LoRAs of copyrighted characters, are out of scope for this page.** Several exist in the community; see [`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3) for the unfiltered index. Check the licence and likeness rights of anything you deploy commercially.
+Check the licence and the likeness rights of any third-party LoRA you deploy commercially.
 
-<p id="recipes" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
+<a id="recipes"></a>
 
-## ▓ Recommended Workflows
+## Recommended Workflows
 
 <a id="recipes-vram"></a>
 
-### ▣ By VRAM and hardware
+### By VRAM and hardware
 
 Pick the row that matches your card, then read the reasoning column — it says *why*, so you can substitute parts intelligently rather than copying blindly.
 
@@ -517,7 +514,7 @@ Pick the row that matches your card, then read the reasoning column — it says 
 
 <a id="recipes-prompt"></a>
 
-### ▣ Prompting
+### Prompting
 
 H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<Video X>` / `<Audio X>` reference tags, and `【台词】` / `<d>` for dialogue. Start from the official guides, then pick one tool — layering three prompt builders is how you get contradictory instructions in a single prompt.
 
@@ -535,9 +532,9 @@ H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<
 
 **Agent-side**, if you drive H3 from a coding agent rather than a canvas: [`Minimax-H3-Prompt-AgentSkill`](https://github.com/benjiyaya/Minimax-H3-Prompt-AgentSkill) · [`minimax-h3-opencode-skills`](https://github.com/unknowlei/minimax-h3-opencode-skills) (director / router / multi-shot planning) · [`ComfyUI-Agent-Kit`](https://github.com/SlavaSexton/ComfyUI-Agent-Kit) (one skill set shared across Claude Code / Codex / Gemini CLI / Qwen Code) · [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) (`MiniMaxRefToVideo2`, official skill prompt format, `@图片1 @音频1 @视频1`, `切镜3.5`, `【台词】`).
 
-<p id="training" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
+<a id="training"></a>
 
-## ▓ Training & Fine-tuning
+## Training & Fine-tuning
 
 > **State of play.** The H3 release ships weights and inference; it does **not** ship a trainer, and the Hugging Face Diffusers integration is inference-only. Everything below is community work built on top of the released weights.
 
@@ -551,9 +548,9 @@ H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<
 
 *Also worth knowing about:* mechanically-extracted delta adapters between the FL2VA and Ref2VA checkpoints (randomized SVD, ranks 256/512/1024) exist as a research curiosity — see [Experimental LoRA](#lora).
 
-<p id="engines" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
+<a id="engines"></a>
 
-## ▓ Inference Engines & Runtimes
+## Inference Engines & Runtimes
 
 | Engine | ★ | H3 support |
 | :--- | ---: | :--- |
@@ -566,13 +563,13 @@ H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<
 | [`MiniMaxH3ComfyUI/MiniMax-H3-ComfyUI`](https://github.com/MiniMaxH3ComfyUI/MiniMax-H3-ComfyUI) | 101 | Runs the 33B + Turbo LoRA locally with SGLang / vLLM / diffusers as selectable backends; T2V / I2V / R2V templates included. |
 | [`Anil-matcha/MiniMax-H3-API`](https://github.com/Anil-matcha/MiniMax-H3-API) | 45 | Python SDK. ⚠️ Talks to a **third-party** hosted API (MuAPI), not an official MiniMax endpoint. |
 
-<p id="nodes" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
+<a id="nodes"></a>
 
-## ▓ ComfyUI Nodes
+## ComfyUI Nodes
 
 Star counts are from the **2026-08-13** snapshot; `—` means the repository was below the star floor of our own scan and the count comes from the community list instead of a measurement.
 
-### ▣ Acceleration
+### Acceleration
 
 The only nodes here with a **reproducible measurement table** are FirstBlockCache and sol-attn. Everything else quotes an author's own figure — useful, but not independently verified.
 
@@ -590,7 +587,7 @@ The only nodes here with a **reproducible measurement table** are FirstBlockCach
 | [`ComfyUI-MiniMaxH3DualClockSampler`](https://github.com/shuaixn/ComfyUI-MiniMaxH3DualClockSampler) ![Acceleration][cat-accel] | — | Dual-clock Euler sampler for the Turbo LoRA — runs video and audio on **separate schedules**, which fixes the audio crackle that 4-step Turbo generation produces. |
 | [`ComfyUI-MiniMax-H3-LegacySampling`](https://github.com/starsFriday/ComfyUI-MiniMax-H3-LegacySampling) ![Acceleration][cat-accel] | — | Restores ComfyUI **v0.30.0** audio-sampling behaviour after upgrading to v0.31.0 — background noise, stereo stability, HF artefacts. A single model-patch node, no source modification. |
 
-### ▣ Conditioning & orchestration
+### Conditioning & orchestration
 
 | Node | ★ | What it does |
 | :--- | ---: | :--- |
@@ -613,7 +610,7 @@ The only nodes here with a **reproducible measurement table** are FirstBlockCach
 | [`ComfyUI-MiniMaxH3-Contex-Loop`](https://github.com/ethanfel/ComfyUI-MiniMaxH3-Contex-Loop) ![Conditioning][cat-cond] | — | Turns one sampling body into a scene-by-scene production loop: each accepted scene carries motion and audio forward, checkpoints itself, and joins into the final video without accumulating huge tensors. |
 | [`ComfyUI-MiniMaxH3FrameInfill`](https://github.com/red-polo/ComfyUI-MiniMaxH3FrameInfill) ![Conditioning][cat-cond] | — | Regenerates any frame interval of an existing H3 video. ⚠️ **Patches ComfyUI's H3 internals — pin your ComfyUI version.** |
 
-### ▣ Upscaling, loading & repair
+### Upscaling, loading & repair
 
 | Node | ★ | What it does |
 | :--- | ---: | :--- |
@@ -629,13 +626,11 @@ The only nodes here with a **reproducible measurement table** are FirstBlockCach
 
 *Below our 30★ floor but real: [`ptmaster/ComfyUI-PT_H3ConcatAVLatent`](https://github.com/ptmaster/ComfyUI-PT_H3ConcatAVLatent) (7★) and [`dreamfast/minimax-h3-python-tv-generator`](https://github.com/dreamfast/minimax-h3-python-tv-generator) (4★).*
 
-### ▣ Prompt nodes
+### Prompt nodes
 
 Prompt-building nodes are listed with the rest of the prompting stack under [Prompting](#recipes-prompt) rather than duplicated here: `1038lab/ComfyUI-MiniMax-H3-Promptor` ![Prompt][cat-prompt], `ethanfel/ComfyUI-MiniMax-H3-Guide` ![Prompt][cat-prompt], `T8mars/comfyui-minimax-h3-prompt-enhancer-T8` ![Prompt][cat-prompt], `Adudeguyman/ComfyUI-Fantastic-MiniMaxH3-PromptBuilder` ![Prompt][cat-prompt], `duckyshell/ComfyUI-MiniMaxH3-Prompt-Writer` ![Prompt][cat-prompt], `benjiyaya/ComfyUI-H3-VisionPromptor` ![Prompt][cat-prompt].
 
-<p align="center">· · · · · · · · · · · · · ·</p>
-
-### ▣ Special Stuff
+### Special Stuff
 
 Three things that are **not** ComfyUI nodes, and are worth knowing about for that reason.
 
@@ -647,25 +642,25 @@ Three things that are **not** ComfyUI nodes, and are worth knowing about for tha
 
 Also on the hardware side: [`joeynyc/MiniMax-H3-DGX-Spark`](https://github.com/joeynyc/MiniMax-H3-DGX-Spark) (31★, single-box vLLM-Omni with online FP8 — the README documents why BF16 does not fit and why INT8 did not work) and [`joeynyc/MiniMax-H3-2x-DGX-Spark`](https://github.com/joeynyc/MiniMax-H3-2x-DGX-Spark) (35★, two boxes over RoCEv2 producing one video).
 
-<p id="guides" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
+<a id="guides"></a>
 
-## ▓ Guides & Tutorials
+## Guides & Tutorials
 
-### ▣ Official guides
+### Official guides
 
 Read these before installing anything. Most "H3 ignores my prompt" reports are prompt-format problems, not model problems.
 
 * **[Video Prompt Writing Guide — Base (FL2VA)](https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/VIDEO_PROMPT_WRITING_GUIDE_base_en.md)** — prompt structure, camera language, scene composition, and best practice for text-to-video and image-to-video. Also mirrored in the GitHub repo as [`VIDEO_PROMPT_WRITING_GUIDE.md`](https://github.com/MiniMax-AI/MiniMax-H3/blob/main/VIDEO_PROMPT_WRITING_GUIDE.md).
 * **[Video Prompt Writing Guide — Reference (Ref2VA)](https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/VIDEO_PROMPT_WRITING_GUIDE_ref_en.md)** — multi-modal reference inputs, image/video/audio reference handling, and prompt construction for omni-reference generation. GitHub mirror: [`VIDEO_PROMPT_WRITING_GUIDE_REF.md`](https://github.com/MiniMax-AI/MiniMax-H3/blob/main/VIDEO_PROMPT_WRITING_GUIDE_REF.md).
 
-### ▣ ComfyUI tutorials
+### ComfyUI tutorials
 
 * **[ComfyUI MiniMax-H3 tutorial](https://docs.comfy.org/tutorials/video/minimax/minimax-h3)** — the official ComfyUI documentation page for setup and usage.
 * **[MiniMax H3 Day-0 support in ComfyUI](https://blog.comfy.org/p/minimax-h3-day-0-support-in-comfyui)** — the launch post: open weights, native audio, 2K output, and local execution down to a 3060.
 
-<p id="wf" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
+<a id="wf"></a>
 
-## ▓ Workflow & Technical Notes
+## Workflow & Technical Notes
 
 <a id="wf-comfyui"></a>
 
@@ -694,15 +689,15 @@ The W4A4 weights are not loadable without [`ComfyUI-OrbitQuant`](https://github.
 * [`joeygambino/MiniMax-H3-Multishot-Workflow`](https://huggingface.co/joeygambino/MiniMax-H3-Multishot-Workflow) — seamless multi-shot chaining: several FL2VA/Ref2VA clips strung into one continuous sequence with matched audio handoffs. Apache-2.0.
 * [`javawock7618/comfy-MiniMax-H3-workflows`](https://huggingface.co/javawock7618/comfy-MiniMax-H3-workflows) — the whole low-VRAM acceleration stack in one importable bundle: INT8 + SageAttention + Spectrum + Lightx2v + Turbo + Motion Context + Latent Upscale + TTS.
 
-<p id="compat" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
+<a id="compat"></a>
 
-## ▓ Compatibility, Patches & Licensing
+## Compatibility, Patches & Licensing
 
-### ▣ Breaking change — INT8 is now native
+### Breaking change — INT8 is now native
 
 INT8 support landed in ComfyUI core (commit `1a510f04`). The author of [`BobJohnson24/ComfyUI-INT8-Fast`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) (286★) states plainly that **older I8Fast quantizations will most likely fail to load** against the native path because the tensor names do not match. Two ways out: run the repo's `convert_comfy_quant.py` to convert an existing file, or download a quant that was produced for the native format. Any tutorial written before this commit should be read with that in mind.
 
-### ▣ Nodes that modify ComfyUI itself
+### Nodes that modify ComfyUI itself
 
 Three tiers, worth distinguishing before you install:
 
@@ -712,18 +707,18 @@ Three tiers, worth distinguishing before you install:
 | **Patches H3 internals at import** | `red-polo/ComfyUI-MiniMaxH3FrameInfill` · the DT-sQKV core patch required by `DmitryDB`'s DT-sQKV files | **Pin your ComfyUI version.** These bind to internal call signatures that are not a stable API. |
 | **Runtime patch that self-validates** | `NikoDemon80/ComfyUI-H3-Motion-Context` | The safest of the three: nothing is written to disk, and on every start it checks its assumptions against the current ComfyUI source and refuses to run on a mismatch. **Prefer this pattern in production.** |
 
-### ▣ Version-specific behaviour
+### Version-specific behaviour
 
 * ComfyUI **0.31.0** changed audio sampling. If you upgraded and your background noise, stereo stability, or high-frequency detail got worse, [`starsFriday/ComfyUI-MiniMax-H3-LegacySampling`](https://github.com/starsFriday/ComfyUI-MiniMax-H3-LegacySampling) restores the 0.30.0 behaviour with a single model-patch node and no source modification.
 * `T8mars/comfyui-minimax-h3-audio-T8` states its baseline as ComfyUI `0.31.0`, commit `cbbc9dab1`, Python 3.10+.
 * `huangserva/ComfyUI_MiniMaxH3_Director` was verified on RTX 4090 48 GB / ComfyUI 0.30.0 / PyTorch 2.11.0 + CUDA 12.8 / Ref2VA INT8.
 * `nicolab28/ComfyUI-ClipProj` was verified only on Windows 11 + ComfyUI 0.31.0, and **rejects an INT8 text encoder unless it is resident**.
 
-### ▣ Duplicate repositories
+### Duplicate repositories
 
 Two of the larger quant collections are published twice under different names. Check the file list before starting a second multi-gigabyte download — in both cases the contents are the same files.
 
-### ▣ Licensing at a glance
+### Licensing at a glance
 
 | License | Where |
 | :--- | :--- |
@@ -734,9 +729,9 @@ Two of the larger quant collections are published twice under different names. C
 
 For everything else, check the repository or model card. This index does not restate license terms it has not verified, and a missing row here means "not verified", not "permissive".
 
-<p id="quickpick" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
+<a id="quickpick"></a>
 
-## ▓ Quick Pick
+## Quick Pick
 
 If you want one line to copy rather than a table to study:
 
@@ -751,72 +746,74 @@ If you want one line to copy rather than a table to study:
 | Fine-tuning | `IAmIronMan42/MiniMax-H3-FineTuning`; for LoRA-only with a GUI, Fizgig or Inline-Studio |
 | Apple Silicon | `antirez/h3.c` |
 
-<p id="credits" align="center">◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆</p>
+<a id="credits"></a>
 
-## ▓ Acknowledgements
+## Sources
 
-This index is a **merge**, and the larger half of the credit belongs elsewhere.
+This page is a merge of two scans, and most of the primary work behind it is other people's.
 
-**[`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3)** is the community-curated index this page is built on top of and modelled after — its structure, its badge idiom, and roughly twenty uploaders that our own enumeration never reached all come from there. If you want the unfiltered list, including the categories this page deliberately leaves out, go there. Maintaining an index of this size by hand is unglamorous work and it is the reason the H3 ecosystem is navigable at all.
+[`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3) is the community-curated index this page is built on top of and modelled after. Its structure, its table idiom, and roughly twenty Hugging Face uploaders our own enumeration never reached all come from there, and it remains the more complete of the two lists.
 
-Thanks also to:
+Where specific figures and findings in this page come from:
 
-* **[Comfy-Org](https://huggingface.co/Comfy-Org)** and the ComfyUI team for day-0 support and for the official conversions and templates.
-* **[ModelTC / LightX2V](https://github.com/ModelTC/LightX2V)** for the Turbo distillation line and for publishing the DMD training configuration rather than only the weights.
-* **[`Larryvrh`](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo)** for the per-checkpoint Turbo comparisons — including the 4-step motion-smear finding — which are the kind of negative result most releases never publish.
-* **[`duckyshell`](https://github.com/duckyshell/ComfyUI-MiniMaxH3-FirstBlockCache)** and **[`Saganaki22`](https://github.com/Saganaki22/ComfyUI-sol-attn)** for shipping reproducible benchmark tables instead of a single speedup number.
-* **[`IAmIronMan42`](https://github.com/IAmIronMan42/MiniMax-H3-FineTuning)** for building a trainer we did not ship, and for documenting the nine fixes it took.
-* **[`scottmudge`](https://github.com/scottmudge/ComfyUI_MinimaxH3HybridLoader)** for the tensor-level FL2VA/Ref2VA diff that explains the quality difference between the two checkpoints.
-* Every quantizer in the tables above. The 24 GB path exists because they spent their own bandwidth on it.
+* [Comfy-Org](https://huggingface.co/Comfy-Org) — the official ComfyUI conversions, the workflow templates, and day-0 support.
+* [ModelTC / LightX2V](https://github.com/ModelTC/LightX2V) — the Turbo distillation line, published together with its DMD training configuration rather than the weights alone.
+* [`Larryvrh`](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo) — the per-checkpoint Turbo comparisons, including the 4-step motion-smear finding and the 6–8 step range that clears it.
+* [`duckyshell`](https://github.com/duckyshell/ComfyUI-MiniMaxH3-FirstBlockCache) and [`Saganaki22`](https://github.com/Saganaki22/ComfyUI-sol-attn) — the benchmark tables quoted in the node sections, reported with hardware and settings attached so they can be reproduced.
+* [`IAmIronMan42`](https://github.com/IAmIronMan42/MiniMax-H3-FineTuning) — the trainer the ecosystem was missing, and the nine fixes documented alongside it.
+* [`scottmudge`](https://github.com/scottmudge/ComfyUI_MinimaxH3HybridLoader) — the tensor-level FL2VA/Ref2VA diff that explains the quality gap between the two checkpoints.
+* Every quantizer in the tables above — the 24 GB path exists because they spent their own bandwidth building it.
 
-Corrections and additions are welcome — including "this number is wrong", which for a document of this size is the most useful issue you can file.
+Corrections and additions are welcome, including "this number is wrong". For a document of this size that is the most useful issue you can file.
 
 <!-- MARKDOWN LINKS & IMAGES -->
+[mm-shield]: https://img.shields.io/badge/MiniMax-E73562?style=for-the-badge
+[mm-url]: https://www.minimax.io
 [hf-shield]: https://img.shields.io/badge/Hugging%20Face-MiniMax--H3-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black
 [hf-url]: https://huggingface.co/MiniMaxAI/MiniMax-H3
 [gh-shield]: https://img.shields.io/badge/GitHub-MiniMax--H3-181717?style=for-the-badge&logo=github&logoColor=white
 [gh-url]: https://github.com/MiniMax-AI/MiniMax-H3
-[comfy-shield]: https://img.shields.io/badge/ComfyUI-native%20support-1a1a1a?style=for-the-badge&logo=comfyui&logoColor=white
+[comfy-shield]: https://img.shields.io/badge/ComfyUI-native%20support-211927?style=for-the-badge
 [comfy-url]: https://docs.comfy.org/tutorials/video/minimax/minimax-h3
 
-[gh-MiniMaxAI]: https://img.shields.io/badge/MiniMaxAI-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-Comfy--Org]: https://img.shields.io/badge/Comfy--Org-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-Abiray]: https://img.shields.io/badge/Abiray-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-DmitryDB]: https://img.shields.io/badge/DmitryDB-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-DiffSynth-Studio]: https://img.shields.io/badge/DiffSynth--Studio-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-DeepBeepMeep]: https://img.shields.io/badge/DeepBeepMeep-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-WaveCut]: https://img.shields.io/badge/WaveCut-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-dummy9996]: https://img.shields.io/badge/dummy9996-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-rockerBOO]: https://img.shields.io/badge/rockerBOO-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-Kijai]: https://img.shields.io/badge/Kijai-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-AX1Y2JP]: https://img.shields.io/badge/AX1Y2JP-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-tsolful]: https://img.shields.io/badge/tsolful-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-realrebelai]: https://img.shields.io/badge/realrebelai-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-rzgar]: https://img.shields.io/badge/rzgar-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-larryvrh]: https://img.shields.io/badge/larryvrh-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-drbaph]: https://img.shields.io/badge/drbaph-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-vantagewithai]: https://img.shields.io/badge/vantagewithai-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-Mamad8]: https://img.shields.io/badge/Mamad8-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-NicoLab28]: https://img.shields.io/badge/NicoLab28-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-lightx2v]: https://img.shields.io/badge/lightx2v-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-lihaoyun6]: https://img.shields.io/badge/lihaoyun6-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-tutututututu]: https://img.shields.io/badge/tutututututu-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-t8star]: https://img.shields.io/badge/t8star-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-abakanai]: https://img.shields.io/badge/abakanai-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-Winnougan]: https://img.shields.io/badge/Winnougan-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-unsloth]: https://img.shields.io/badge/unsloth-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-MarxistLeninist]: https://img.shields.io/badge/MarxistLeninist-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-joyfox]: https://img.shields.io/badge/joyfox-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-smhfacct]: https://img.shields.io/badge/smhfacct-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-infosave]: https://img.shields.io/badge/infosave-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-InstantX]: https://img.shields.io/badge/InstantX-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-Merserk]: https://img.shields.io/badge/Merserk-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-molbal]: https://img.shields.io/badge/molbal-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-leejet]: https://img.shields.io/badge/leejet-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-fal]: https://img.shields.io/badge/fal-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-matlod]: https://img.shields.io/badge/matlod-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-Inner--Reflections]: https://img.shields.io/badge/Inner--Reflections-lightgrey?style=flat-square&logo=huggingface&logoColor=white
-[gh-bghira]: https://img.shields.io/badge/bghira-lightgrey?style=flat-square&logo=huggingface&logoColor=white
+[gh-MiniMaxAI]: https://img.shields.io/badge/MiniMaxAI-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-Comfy--Org]: https://img.shields.io/badge/Comfy--Org-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-Abiray]: https://img.shields.io/badge/Abiray-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-DmitryDB]: https://img.shields.io/badge/DmitryDB-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-DiffSynth-Studio]: https://img.shields.io/badge/DiffSynth--Studio-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-DeepBeepMeep]: https://img.shields.io/badge/DeepBeepMeep-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-WaveCut]: https://img.shields.io/badge/WaveCut-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-dummy9996]: https://img.shields.io/badge/dummy9996-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-rockerBOO]: https://img.shields.io/badge/rockerBOO-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-Kijai]: https://img.shields.io/badge/Kijai-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-AX1Y2JP]: https://img.shields.io/badge/AX1Y2JP-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-tsolful]: https://img.shields.io/badge/tsolful-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-realrebelai]: https://img.shields.io/badge/realrebelai-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-rzgar]: https://img.shields.io/badge/rzgar-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-larryvrh]: https://img.shields.io/badge/larryvrh-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-drbaph]: https://img.shields.io/badge/drbaph-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-vantagewithai]: https://img.shields.io/badge/vantagewithai-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-Mamad8]: https://img.shields.io/badge/Mamad8-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-NicoLab28]: https://img.shields.io/badge/NicoLab28-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-lightx2v]: https://img.shields.io/badge/lightx2v-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-lihaoyun6]: https://img.shields.io/badge/lihaoyun6-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-tutututututu]: https://img.shields.io/badge/tutututututu-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-t8star]: https://img.shields.io/badge/t8star-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-abakanai]: https://img.shields.io/badge/abakanai-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-Winnougan]: https://img.shields.io/badge/Winnougan-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-unsloth]: https://img.shields.io/badge/unsloth-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-MarxistLeninist]: https://img.shields.io/badge/MarxistLeninist-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-joyfox]: https://img.shields.io/badge/joyfox-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-smhfacct]: https://img.shields.io/badge/smhfacct-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-infosave]: https://img.shields.io/badge/infosave-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-InstantX]: https://img.shields.io/badge/InstantX-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-Merserk]: https://img.shields.io/badge/Merserk-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-molbal]: https://img.shields.io/badge/molbal-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-leejet]: https://img.shields.io/badge/leejet-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-fal]: https://img.shields.io/badge/fal-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-matlod]: https://img.shields.io/badge/matlod-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-Inner--Reflections]: https://img.shields.io/badge/Inner--Reflections-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-bghira]: https://img.shields.io/badge/bghira-FFD21E?style=flat-square&logo=huggingface&logoColor=black
 
 [badge-bf16]: https://img.shields.io/badge/bf16-0077cc?style=flat-square
 [badge-fp16]: https://img.shields.io/badge/fp16-0077cc?style=flat-square
