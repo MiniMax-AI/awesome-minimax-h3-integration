@@ -12,7 +12,7 @@
 
 </div>
 
-> **What this is.** A map of the H3 ecosystem, compiled from MiniMax's GitHub and Hugging Face scan (snapshot **2026-08-13**) and the community-maintained [`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3). Listings are references, not endorsements. Requirements such as a patched ComfyUI build, extra nodes, or an unstated license are flagged where they matter.
+> **What this is.** A list of H3 models, tools, and workflows. It combines MiniMax's GitHub and Hugging Face scan (snapshot **2026-08-13**) with the community-maintained [`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3). A listing is not an endorsement. If something needs a patched ComfyUI build, extra nodes, or has no stated license, that is called out next to it.
 >
 > **Sizes are binary units** — `GiB = bytes / 1024³`, `MiB = bytes / 1024²` — which is what your OS, `du`, and the Hugging Face UI report. (Community lists often print these same numbers labelled "GB"; the numbers agree, the label does not.)
 
@@ -64,7 +64,7 @@ MiniMax-H3 takes text, images, video, and audio as input, then generates video w
 * **H3-Base-FL2VA** (first-and-last-frame mode) — takes zero, one, or two input images. Zero images = text-to-video; one image = first- *or* last-frame-to-video; two images = first-and-last-frame-to-video.
 * **H3-Base-Ref2VA** (omni-reference mode) — takes up to **9 images, 3 video clips (2–15 s each), and 3 audio clips**, to a maximum of **12 files** total.
 
-The two are separate checkpoints of identical size. FL2VA was trained only on keyframe conditioning and is the higher-quality of the two on raw output; Ref2VA buys multimodal reference control at a documented cost in base quality. See [Ref Patch](#refpatch) and the [hybrid loader](#nodes) for ways to combine them.
+The checkpoints are the same size. FL2VA was trained only with keyframes and usually gives better raw output. Ref2VA accepts more reference material, but its base quality is lower. [Ref Patch](#refpatch) and the [hybrid loader](#nodes) can combine parts of the two.
 
 <a id="checkpoints"></a>
 
@@ -96,7 +96,7 @@ The two are separate checkpoints of identical size. FL2VA was trained only on ke
 
 These step-distilled LoRAs render video and synchronized stereo audio in **4 sampling steps** rather than roughly 20. [`ModelTC/Minimax-H3-Turbo`](https://github.com/ModelTC/Minimax-H3-Turbo) (Apache-2.0) contains the training work; [`lightx2v/Minimax-h3-Turbo`](https://huggingface.co/lightx2v/Minimax-h3-Turbo) hosts the weights. The public DMD config is at `configs/minimax_h3/dmd`: **1344×768, `video_flow_shift=6`, `audio_flow_shift=3`, LoRA alpha 128, 4 steps**.
 
-**Choosing a checkpoint** — based on tests from [`Larryvrh/ComfyUI-MiniMax-H3-Turbo`](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo) (417★). Full-checkpoint LoRAs require its sampler node:
+**Choosing a checkpoint** — based on tests from [`Larryvrh/ComfyUI-MiniMax-H3-Turbo`](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo) (417⭐). Full-checkpoint LoRAs require its sampler node:
 
 * Default to **`minimax_h3_turbo_v4_step600_ema`**.
 * At 4 steps with large motion you will see **motion smear**; going to **6–8 steps** substantially removes it.
@@ -244,7 +244,7 @@ Unified tables for FL2VA and Ref2VA. **Pruned** marks AdaLN-pruned checkpoints (
 <details>
 <summary><b>Multi-tier repack — DeepBeepMeep/MiniMax-H3</b> (29 files, 549 GiB — every precision × pruning combination in one place)</summary>
 
-A community repack that carries FL2VA **and** Ref2VA in every combination, so you can step down a tier without hunting for a new repo: full `bf16` (61.7 GiB) and `int8_convrot` (31.7 GiB); `pruned` `bf16` (38.6 GiB) and `int8_convrot` (20.6 GiB); `pruned_rank8` `bf16` (37.5 GiB) and `int8_convrot` (19.7 GiB). Also ships VAEs (video `fp16` 4.85 GiB, video `fp8mix` 2.60 GiB, audio `fp32` 577 MiB), a Qwen3-VL-32B text encoder (`nvfp4_awq`, `Q4_K_M` GGUF, and a quanto-INT8 build at 24.89 GiB), and SeedVR2 upscaler checkpoints.
+This community repack includes both FL2VA and Ref2VA at several sizes: full `bf16` (61.7 GiB) and `int8_convrot` (31.7 GiB); `pruned` `bf16` (38.6 GiB) and `int8_convrot` (20.6 GiB); and `pruned_rank8` `bf16` (37.5 GiB) and `int8_convrot` (19.7 GiB). It also includes VAEs (video `fp16` 4.85 GiB, video `fp8mix` 2.60 GiB, audio `fp32` 577 MiB), a Qwen3-VL-32B text encoder (`nvfp4_awq`, `Q4_K_M` GGUF, and quanto-INT8 at 24.89 GiB), and SeedVR2 upscaler checkpoints.
 
 ⚠️ **No license is stated on the repo.** Clarify usage rights before redistributing or shipping anything built on it. [Repo](https://huggingface.co/DeepBeepMeep/MiniMax-H3)
 
@@ -349,7 +349,7 @@ The fine-tunes themselves are third-party and are not itemised here; browse [`Dm
 
 ## Text Encoders
 
-MiniMax-H3 conditions on **Qwen3-VL-32B** for both text and vision. On a 24 GB card the text encoder is usually the *second* thing you have to shrink after the DiT, so it gets its own ladder.
+MiniMax-H3 uses **Qwen3-VL-32B** for text and vision. On a 24 GB card, you will usually need to reduce the text encoder after reducing the DiT. The options are listed below.
 
 ### Comfy-Org (official repackage)
 
@@ -493,13 +493,13 @@ Check the licence and the likeness rights of any third-party LoRA you deploy com
 
 ### By VRAM and hardware
 
-Start with the row for your GPU. The reasoning column explains the trade-offs, so you can swap components with confidence.
+Find your GPU in the table, then use the notes to decide what to change.
 
 | Situation | Stack | Why this combination |
 | :--- | :--- | :--- |
-| **24 GB, first run** | `pruned_int8_convrot` DiT (19.53 GiB) + TE `nvfp4_awq` (14.61 GiB) + [`ComfyUI-MiniMaxH3-Easy`](https://github.com/nkxx188/ComfyUI-MiniMaxH3-Easy) | Easy collapses T2V / I2V / first-last-frame / full-reference into one multi-connect `Media` port while leaving sampling, LoRA, and decoding **outside** the node — so you are not locked into one author's ecosystem the moment you need to change something. |
+| **24 GB, first run** | `pruned_int8_convrot` DiT (19.53 GiB) + TE `nvfp4_awq` (14.61 GiB) + [`ComfyUI-MiniMaxH3-Easy`](https://github.com/nkxx188/ComfyUI-MiniMaxH3-Easy) | Easy puts T2V, I2V, first/last-frame, and reference input through one `Media` port. Sampling, LoRAs, and decoding stay outside the node, so you can change them later. |
 | **24 GB, want speed** | The above + SageAttention2 + [FirstBlockCache](https://github.com/duckyshell/ComfyUI-MiniMaxH3-FirstBlockCache) + Turbo `v4_step600_ema` at **6–8 steps** | FirstBlockCache is the only accelerator publishing a reproducible measurement table (see [Nodes](#nodes)). 6–8 steps rather than 4 is the Turbo author's own threshold for eliminating motion smear. |
-| **12–16 GB** | Pruned `Q4_K_M` GGUF (10.64 GiB) or pruned `nvfp4` (11.67 GiB) + TE `Q2_K` (7.91 GiB) + fp8mix VAE pair | GGUF has the finest size ladder, so you can land on your exact headroom. Below this, `IQ1_S` at 3.78 GiB exists but expect real quality loss. |
+| **12–16 GB** | Pruned `Q4_K_M` GGUF (10.64 GiB) or pruned `nvfp4` (11.67 GiB) + TE `Q2_K` (7.91 GiB) + fp8mix VAE pair | GGUF has the most size options, which helps when memory is tight. `IQ1_S` is smaller at 3.78 GiB, but quality drops noticeably. |
 | **8 GB** | [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio) NF4 path | The project states 8 GB as its floor for this path. Offloading is doing most of the work here — expect slow, not merely small. |
 | **RTX 50-series / Blackwell** | Sol-Attn Triton kernel — [`ComfyUI-sol-attn`](https://github.com/Saganaki22/ComfyUI-sol-attn) or [`ComfyUI-SolAttn_triton`](https://github.com/kijai/ComfyUI-SolAttn_triton) | **1.14–1.44×** over SageAttention with **−37 % MLP peak VRAM**, measured on a 5090. SM89–SM121, Triton 3.6.0. Also unlocks the hybrid-NVFP4 checkpoints, which are Blackwell-only. |
 | **Multi-shot / long video** | [`ComfyUI-H3-Multishot`](https://github.com/jlucasmcrell/ComfyUI-H3-Multishot) or [`ComfyUI-H3-Motion-Context`](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) | H3 generates in blocks of up to 15 s. Multishot joins blocks into a continuous take (no visible cut, no colour shift, continuous audio) and carries its own GGUF architecture patch plus a dual-format loader. Motion-Context feeds the previous block's final frame **and** audio forward, preserving motion direction and speed. |
@@ -510,7 +510,7 @@ Start with the row for your GPU. The reasoning column explains the trade-offs, s
 | **Best of both checkpoints** | [`ComfyUI_MinimaxH3HybridLoader`](https://github.com/scottmudge/ComfyUI_MinimaxH3HybridLoader) | Layers Ref2VA's multimodal conditioning tensors onto the higher-quality FL2VA base (`adaln_proj`-only merge). Output is indistinguishable from a plain `Load Diffusion Model`. |
 | **Inpaint / local edit** | [`scraed/LanPaint`](https://github.com/scraed/LanPaint) | v2.1.0 fixed H3 support. Training-free video **and** audio inpainting. |
 | **Apple Silicon** | [`antirez/h3.c`](https://github.com/antirez/h3.c) (MIT, Metal-native) or [`minimax-h3-mlx`](https://github.com/PipeNetwork/minimax-h3-mlx) | h3.c has T2V/A, first-last-frame, and ordered Ref2VA references working end to end, with M3 Max / M5 Max performance work ongoing. The MLX build is a from-scratch reimplementation. |
-| **DGX Spark (GB10 / SM121)** | [`MiniMax-H3-DGX-Spark`](https://github.com/joeynyc/MiniMax-H3-DGX-Spark) · [`MiniMax-H3-2x-DGX-Spark`](https://github.com/joeynyc/MiniMax-H3-2x-DGX-Spark) · [`drowzeys` single-Spark recipe](https://github.com/wildminder/awesome-minimax-H3#special-stuff) | The single-node recipe documents the failures too — BF16 does not fit, INT8 does not work — and lands on online FP8. The two-node build pairs Sparks over RoCEv2 for one video. The third recipe reports **1.55×** over dense stock and warns: route SageAttention **through the KJ node, not the global `--use-sage-attention` flag**. |
+| **DGX Spark (GB10 / SM121)** | [`MiniMax-H3-DGX-Spark`](https://github.com/joeynyc/MiniMax-H3-DGX-Spark) · [`MiniMax-H3-2x-DGX-Spark`](https://github.com/joeynyc/MiniMax-H3-2x-DGX-Spark) · [`drowzeys` single-Spark recipe](https://github.com/wildminder/awesome-minimax-H3#special-stuff) | One Spark needs online FP8: BF16 does not fit and INT8 does not work. The two-node build joins two Sparks over RoCEv2. The third recipe reports **1.55×** over dense stock and says to use SageAttention through the KJ node, not the global `--use-sage-attention` flag. |
 | **One-command local** | [`open-video-ai/open-video`](https://github.com/open-video-ai/open-video) | "Ollama for video models" — `install` · `pull` · `run`. |
 
 <a id="recipes-prompt"></a>
@@ -531,15 +531,15 @@ H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<
 | [`awesome-minimax-h3-prompts`](https://github.com/BeatAPI/awesome-minimax-h3-prompts) | Prompt corpus with WebM examples and author attribution, in five categories: story, action/fantasy, ad/product, music performance, vlog. |
 | [`minimax-h3-prompt-skill-T8`](https://github.com/T8mars/minimax-h3-prompt-skill-T8) | "Creative DNA" case library, installable as an agent skill, with an Electron desktop viewer. |
 
-**Agent-side**, if you drive H3 from a coding agent rather than a canvas: [`Minimax-H3-Prompt-AgentSkill`](https://github.com/benjiyaya/Minimax-H3-Prompt-AgentSkill) · [`minimax-h3-opencode-skills`](https://github.com/unknowlei/minimax-h3-opencode-skills) (director / router / multi-shot planning) · [`ComfyUI-Agent-Kit`](https://github.com/SlavaSexton/ComfyUI-Agent-Kit) (one skill set shared across Claude Code / Codex / Gemini CLI / Qwen Code) · [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) (`MiniMaxRefToVideo2`, official skill prompt format, `@图片1 @音频1 @视频1`, `切镜3.5`, `【台词】`).
+If you run H3 from a coding agent instead of the ComfyUI canvas, see: [`Minimax-H3-Prompt-AgentSkill`](https://github.com/benjiyaya/Minimax-H3-Prompt-AgentSkill) · [`minimax-h3-opencode-skills`](https://github.com/unknowlei/minimax-h3-opencode-skills) (director, routing, and multi-shot planning) · [`ComfyUI-Agent-Kit`](https://github.com/SlavaSexton/ComfyUI-Agent-Kit) (shared by Claude Code, Codex, Gemini CLI, and Qwen Code) · [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) (`MiniMaxRefToVideo2`, official prompt format, `@图片1 @音频1 @视频1`, `切镜3.5`, `【台词】`).
 
 <a id="training"></a>
 
 ## Training & Fine-tuning
 
-> **State of play.** The H3 release ships weights and inference; it does **not** ship a trainer, and the Hugging Face Diffusers integration is inference-only. Everything below is community work built on top of the released weights.
+> **Training status.** H3 includes weights and inference code, but no official trainer. The Hugging Face Diffusers integration is also inference-only. Everything below comes from the community.
 
-| Project | ★ | Notes |
+| Project | ⭐ | Notes |
 | :--- | ---: | :--- |
 | [`IAmIronMan42/MiniMax-H3-FineTuning`](https://github.com/IAmIronMan42/MiniMax-H3-FineTuning) | 487 | **The most complete trainer currently available.** Supervised rectified-flow training on top of the official Diffusers implementation, with latent caching (`prepare_cache.py`, `prepare_cache_pairs.py`) and a `FIXES.md` documenting nine fixes the author needed to make it converge. Verified scale: LoRA on **8×A800**, 2000 clips of ~30 s at 448×768, ~65k tokens per sequence, **stereo audio inside the loss**. |
 | [`shootthesound/Fizgig`](https://github.com/shootthesound/Fizgig) | 157 | LoRA / LoKr training studio with a built-in **"✨ MiniMax H3 Fast"** preset (LoKr, 8 dim / alpha 16, 60 epochs). Also does profile / repair / extract. |
@@ -553,7 +553,7 @@ H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<
 
 ## Inference Engines & Runtimes
 
-| Engine | ★ | H3 support |
+| Engine | ⭐ | H3 support |
 | :--- | ---: | :--- |
 | [`ComfyUI`](https://github.com/comfyanonymous/ComfyUI) | 127159 | Native, day-0. INT8 is now in mainline (commit `1a510f04`) — see [Compatibility](#compat) before reusing older INT8 quants. |
 | [`modelscope/DiffSynth-Studio`](https://github.com/modelscope/DiffSynth-Studio) | 12925 | `MiniMaxH3Pipeline` in `diffsynth.pipelines.minimax_h3_audio_video`; docs at `docs/en/Model_Details/MiniMax-H3.md`, examples at `examples/minimax_h3/`. Ships **NF4** quantized inference with an **8 GB VRAM** floor. |
@@ -568,13 +568,13 @@ H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<
 
 ## ComfyUI Nodes
 
-Star counts are from the **2026-08-13** snapshot; `—` means the repository was below the star floor of our own scan and the count comes from the community list instead of a measurement.
+Star counts are from the **2026-08-13** snapshot. `—` means the repository was below the scan threshold, so the number comes from the community list instead.
 
 ### Acceleration
 
 The only nodes here with a **reproducible measurement table** are FirstBlockCache and sol-attn. Everything else quotes an author's own figure — useful, but not independently verified.
 
-| Node | ★ | Mechanism & published parameters |
+| Node | ⭐ | Mechanism & published parameters |
 | :--- | ---: | :--- |
 | [`ComfyUI-Spectrum-MiniMax-H3`](https://github.com/xmarre/ComfyUI-Spectrum-MiniMax-H3) ![Acceleration][cat-accel] | 493 | Spectral feature forecasting — fits post-transformer features with **Chebyshev ridge regression** and extrapolates future steps, skipping selected transformer evaluations. Adaptive scheduling with native fallbacks. The author is explicit that this is an approximation: **output is not bit-identical to native.** |
 | [`ComfyUI-SolAttn_triton`](https://github.com/kijai/ComfyUI-SolAttn_triton) ![Acceleration][cat-accel] | 266 | SolAttention Triton kernel — optimized attention for H3 and other Sol-Attn models. |
@@ -590,7 +590,7 @@ The only nodes here with a **reproducible measurement table** are FirstBlockCach
 
 ### Conditioning & orchestration
 
-| Node | ★ | What it does |
+| Node | ⭐ | What it does |
 | :--- | ---: | :--- |
 | [`comfyui-minimax-h3-audio-T8`](https://github.com/T8mars/comfyui-minimax-h3-audio-T8) ![Conditioning][cat-cond] | 653 | v1.17.0, **62 nodes** across eight menus: Audio (stable), Audio Experimental (multi-rate), Still, Conditioning, Models, Long Video, Speech, Source AV. Baseline ComfyUI `0.31.0`, commit `cbbc9dab1`, Python 3.10+. |
 | [`ComfyUI_MiniMaxH3_Director`](https://github.com/huangserva/ComfyUI_MiniMaxH3_Director) ![Conditioning][cat-cond] | 553 | Five importable JSON templates — t2v / fl2v / r2v / v2v / rv2v. |
@@ -613,7 +613,7 @@ The only nodes here with a **reproducible measurement table** are FirstBlockCach
 
 ### Upscaling, loading & repair
 
-| Node | ★ | What it does |
+| Node | ⭐ | What it does |
 | :--- | ---: | :--- |
 | [`scraed/LanPaint`](https://github.com/scraed/LanPaint) ![Conditioning][cat-cond] | 1331 | Training-free video **and audio** inpainting; H3 support fixed in v2.1.0. |
 | [`ComfyUI-MiniMaxH3_LatentUpscaler`](https://github.com/Tr1dae/ComfyUI-MiniMaxH3_LatentUpscaler) ![Upscaling][cat-upscale] | 191 | Latent spatial upscaler for H3's `NestedTensor` AV latents — video `[B,24,T,H/16,W/16]` + audio `[B,32,2,T_audio]` — which is why stock `LatentUpscaleBy` crashes on them. Re-noises video and audio for two-pass sampling and scales `minimax_refs` / `minimax_keyframes` conditioning. `audio_denoise`: **0** locks the existing audio, **1** fully remixes, **0.25–0.5** is the light-touch range. |
@@ -625,7 +625,7 @@ The only nodes here with a **reproducible measurement table** are FirstBlockCach
 | [`mrbizarro/minimax-h3-mlx`](https://github.com/mrbizarro/minimax-h3-mlx) ![Port][cat-port] | — | Apple Silicon MLX port of the full pipeline; AdaLN precompute drops 13B params at inference. Validated against the diffusers reference. |
 | [`ComfyUI-INT8-Fast`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) ![Acceleration][cat-accel] | 286 | **Largely superseded** — INT8 is now native in ComfyUI. Its remaining value is `convert_comfy_quant.py`; see [Compatibility](#compat). |
 
-*Below our 30★ floor but real: [`ptmaster/ComfyUI-PT_H3ConcatAVLatent`](https://github.com/ptmaster/ComfyUI-PT_H3ConcatAVLatent) (7★) and [`dreamfast/minimax-h3-python-tv-generator`](https://github.com/dreamfast/minimax-h3-python-tv-generator) (4★).*
+*Below our 30⭐ floor but real: [`ptmaster/ComfyUI-PT_H3ConcatAVLatent`](https://github.com/ptmaster/ComfyUI-PT_H3ConcatAVLatent) (7⭐) and [`dreamfast/minimax-h3-python-tv-generator`](https://github.com/dreamfast/minimax-h3-python-tv-generator) (4⭐).*
 
 ### Prompt nodes
 
@@ -633,15 +633,15 @@ Prompt-building nodes are listed with the rest of the prompting stack under [Pro
 
 ### Standalone tools
 
-These projects are not ComfyUI nodes, but they can still be useful in an H3 workflow.
+These are not ComfyUI nodes, but they may still be useful for running H3.
 
-| Project | ★ | What it is |
+| Project | ⭐ | What it is |
 | :--- | ---: | :--- |
 | [`antirez/h3.c`](https://github.com/antirez/h3.c) | 1652 | A standalone C/Metal inference engine for Apple Silicon — no Python, no ComfyUI, one binary with an interactive Iris-style session. Prompt-to-video/audio, first/last-frame, and ordered Ref2VA references all run end-to-end on M3 / M5 Max; performance and memory work is ongoing. MIT. |
 | [`drowzeys/keys-heretic-…-Single-DGX-Spark`](https://github.com/drowzeys/keys-heretic-MiniMax-H3-sol-engine-more-speed-upgrades-upscaler-finish-Single-DGX-Spark) | 32 | A one-shot recipe for a single NVIDIA DGX Spark (GB10, `sm_121`): Sol-Engine ports, Ultra-Heretic TE, Spectrum forecasting, SageAttention, generate at 0.5 MPix then finish with RealESRGAN ×2. Ships a formal benchmark ladder — **1.55× vs dense stock**. Note the author's warning to route SageAttention **through the KJ node, not the global `--use-sage-attention` flag**. |
 | [`WayneJin0918/Omni-Rewriter`](https://github.com/WayneJin0918/Omni-Rewriter) | — | An agentic prompt-expansion harness, not a node: a bounded **Analyze → Draft → Validate → Repair → Render** loop that turns intent into a model-ready prompt. Current video profile is MiniMax-H3. CLI (`omni-rewriter expand`) plus HTTP server (`POST /v1/expand`), deterministic PE validation, and a reusable CI lint Action. Apache-2.0. |
 
-Also on the hardware side: [`joeynyc/MiniMax-H3-DGX-Spark`](https://github.com/joeynyc/MiniMax-H3-DGX-Spark) (31★, single-box vLLM-Omni with online FP8 — the README documents why BF16 does not fit and why INT8 did not work) and [`joeynyc/MiniMax-H3-2x-DGX-Spark`](https://github.com/joeynyc/MiniMax-H3-2x-DGX-Spark) (35★, two boxes over RoCEv2 producing one video).
+Also on the hardware side: [`joeynyc/MiniMax-H3-DGX-Spark`](https://github.com/joeynyc/MiniMax-H3-DGX-Spark) (31⭐, single-box vLLM-Omni with online FP8 — the README documents why BF16 does not fit and why INT8 did not work) and [`joeynyc/MiniMax-H3-2x-DGX-Spark`](https://github.com/joeynyc/MiniMax-H3-2x-DGX-Spark) (35⭐, two boxes over RoCEv2 producing one video).
 
 <a id="guides"></a>
 
@@ -696,7 +696,7 @@ The W4A4 weights are not loadable without [`ComfyUI-OrbitQuant`](https://github.
 
 ### Breaking change — INT8 is now native
 
-INT8 support landed in ComfyUI core (commit `1a510f04`). The author of [`BobJohnson24/ComfyUI-INT8-Fast`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) (286★) states plainly that **older I8Fast quantizations will most likely fail to load** against the native path because the tensor names do not match. Two ways out: run the repo's `convert_comfy_quant.py` to convert an existing file, or download a quant that was produced for the native format. Any tutorial written before this commit should be read with that in mind.
+INT8 support landed in ComfyUI core (commit `1a510f04`). The author of [`BobJohnson24/ComfyUI-INT8-Fast`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) (286⭐) states plainly that **older I8Fast quantizations will most likely fail to load** against the native path because the tensor names do not match. Two ways out: run the repo's `convert_comfy_quant.py` to convert an existing file, or download a quant that was produced for the native format. Any tutorial written before this commit should be read with that in mind.
 
 ### Nodes that modify ComfyUI itself
 
@@ -768,44 +768,44 @@ Where specific figures and findings in this page come from:
 Corrections and additions are welcome — especially a wrong number, broken link, or missing compatibility note.
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[gh-MiniMaxAI]: https://img.shields.io/badge/MiniMaxAI-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-Comfy--Org]: https://img.shields.io/badge/Comfy--Org-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-Abiray]: https://img.shields.io/badge/Abiray-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-DmitryDB]: https://img.shields.io/badge/DmitryDB-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-DiffSynth-Studio]: https://img.shields.io/badge/DiffSynth--Studio-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-DeepBeepMeep]: https://img.shields.io/badge/DeepBeepMeep-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-WaveCut]: https://img.shields.io/badge/WaveCut-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-dummy9996]: https://img.shields.io/badge/dummy9996-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-rockerBOO]: https://img.shields.io/badge/rockerBOO-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-Kijai]: https://img.shields.io/badge/Kijai-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-AX1Y2JP]: https://img.shields.io/badge/AX1Y2JP-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-tsolful]: https://img.shields.io/badge/tsolful-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-realrebelai]: https://img.shields.io/badge/realrebelai-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-rzgar]: https://img.shields.io/badge/rzgar-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-larryvrh]: https://img.shields.io/badge/larryvrh-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-drbaph]: https://img.shields.io/badge/drbaph-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-vantagewithai]: https://img.shields.io/badge/vantagewithai-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-Mamad8]: https://img.shields.io/badge/Mamad8-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-NicoLab28]: https://img.shields.io/badge/NicoLab28-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-lightx2v]: https://img.shields.io/badge/lightx2v-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-lihaoyun6]: https://img.shields.io/badge/lihaoyun6-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-tutututututu]: https://img.shields.io/badge/tutututututu-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-t8star]: https://img.shields.io/badge/t8star-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-abakanai]: https://img.shields.io/badge/abakanai-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-Winnougan]: https://img.shields.io/badge/Winnougan-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-unsloth]: https://img.shields.io/badge/unsloth-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-MarxistLeninist]: https://img.shields.io/badge/MarxistLeninist-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-joyfox]: https://img.shields.io/badge/joyfox-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-smhfacct]: https://img.shields.io/badge/smhfacct-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-infosave]: https://img.shields.io/badge/infosave-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-InstantX]: https://img.shields.io/badge/InstantX-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-Merserk]: https://img.shields.io/badge/Merserk-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-molbal]: https://img.shields.io/badge/molbal-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-leejet]: https://img.shields.io/badge/leejet-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-fal]: https://img.shields.io/badge/fal-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-matlod]: https://img.shields.io/badge/matlod-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-Inner--Reflections]: https://img.shields.io/badge/Inner--Reflections-FFD21E?style=flat-square&logo=huggingface&logoColor=black
-[gh-bghira]: https://img.shields.io/badge/bghira-FFD21E?style=flat-square&logo=huggingface&logoColor=black
+[gh-MiniMaxAI]: https://img.shields.io/badge/%F0%9F%A4%97-MiniMaxAI-FFD21E?style=flat-square
+[gh-Comfy--Org]: https://img.shields.io/badge/%F0%9F%A4%97-Comfy--Org-FFD21E?style=flat-square
+[gh-Abiray]: https://img.shields.io/badge/%F0%9F%A4%97-Abiray-FFD21E?style=flat-square
+[gh-DmitryDB]: https://img.shields.io/badge/%F0%9F%A4%97-DmitryDB-FFD21E?style=flat-square
+[gh-DiffSynth-Studio]: https://img.shields.io/badge/%F0%9F%A4%97-DiffSynth--Studio-FFD21E?style=flat-square
+[gh-DeepBeepMeep]: https://img.shields.io/badge/%F0%9F%A4%97-DeepBeepMeep-FFD21E?style=flat-square
+[gh-WaveCut]: https://img.shields.io/badge/%F0%9F%A4%97-WaveCut-FFD21E?style=flat-square
+[gh-dummy9996]: https://img.shields.io/badge/%F0%9F%A4%97-dummy9996-FFD21E?style=flat-square
+[gh-rockerBOO]: https://img.shields.io/badge/%F0%9F%A4%97-rockerBOO-FFD21E?style=flat-square
+[gh-Kijai]: https://img.shields.io/badge/%F0%9F%A4%97-Kijai-FFD21E?style=flat-square
+[gh-AX1Y2JP]: https://img.shields.io/badge/%F0%9F%A4%97-AX1Y2JP-FFD21E?style=flat-square
+[gh-tsolful]: https://img.shields.io/badge/%F0%9F%A4%97-tsolful-FFD21E?style=flat-square
+[gh-realrebelai]: https://img.shields.io/badge/%F0%9F%A4%97-realrebelai-FFD21E?style=flat-square
+[gh-rzgar]: https://img.shields.io/badge/%F0%9F%A4%97-rzgar-FFD21E?style=flat-square
+[gh-larryvrh]: https://img.shields.io/badge/%F0%9F%A4%97-larryvrh-FFD21E?style=flat-square
+[gh-drbaph]: https://img.shields.io/badge/%F0%9F%A4%97-drbaph-FFD21E?style=flat-square
+[gh-vantagewithai]: https://img.shields.io/badge/%F0%9F%A4%97-vantagewithai-FFD21E?style=flat-square
+[gh-Mamad8]: https://img.shields.io/badge/%F0%9F%A4%97-Mamad8-FFD21E?style=flat-square
+[gh-NicoLab28]: https://img.shields.io/badge/%F0%9F%A4%97-NicoLab28-FFD21E?style=flat-square
+[gh-lightx2v]: https://img.shields.io/badge/%F0%9F%A4%97-lightx2v-FFD21E?style=flat-square
+[gh-lihaoyun6]: https://img.shields.io/badge/%F0%9F%A4%97-lihaoyun6-FFD21E?style=flat-square
+[gh-tutututututu]: https://img.shields.io/badge/%F0%9F%A4%97-tutututututu-FFD21E?style=flat-square
+[gh-t8star]: https://img.shields.io/badge/%F0%9F%A4%97-t8star-FFD21E?style=flat-square
+[gh-abakanai]: https://img.shields.io/badge/%F0%9F%A4%97-abakanai-FFD21E?style=flat-square
+[gh-Winnougan]: https://img.shields.io/badge/%F0%9F%A4%97-Winnougan-FFD21E?style=flat-square
+[gh-unsloth]: https://img.shields.io/badge/%F0%9F%A4%97-unsloth-FFD21E?style=flat-square
+[gh-MarxistLeninist]: https://img.shields.io/badge/%F0%9F%A4%97-MarxistLeninist-FFD21E?style=flat-square
+[gh-joyfox]: https://img.shields.io/badge/%F0%9F%A4%97-joyfox-FFD21E?style=flat-square
+[gh-smhfacct]: https://img.shields.io/badge/%F0%9F%A4%97-smhfacct-FFD21E?style=flat-square
+[gh-infosave]: https://img.shields.io/badge/%F0%9F%A4%97-infosave-FFD21E?style=flat-square
+[gh-InstantX]: https://img.shields.io/badge/%F0%9F%A4%97-InstantX-FFD21E?style=flat-square
+[gh-Merserk]: https://img.shields.io/badge/%F0%9F%A4%97-Merserk-FFD21E?style=flat-square
+[gh-molbal]: https://img.shields.io/badge/%F0%9F%A4%97-molbal-FFD21E?style=flat-square
+[gh-leejet]: https://img.shields.io/badge/%F0%9F%A4%97-leejet-FFD21E?style=flat-square
+[gh-fal]: https://img.shields.io/badge/%F0%9F%A4%97-fal-FFD21E?style=flat-square
+[gh-matlod]: https://img.shields.io/badge/%F0%9F%A4%97-matlod-FFD21E?style=flat-square
+[gh-Inner--Reflections]: https://img.shields.io/badge/%F0%9F%A4%97-Inner--Reflections-FFD21E?style=flat-square
+[gh-bghira]: https://img.shields.io/badge/%F0%9F%A4%97-bghira-FFD21E?style=flat-square
 
 [badge-bf16]: https://img.shields.io/badge/bf16-0077cc?style=flat-square
 [badge-fp16]: https://img.shields.io/badge/fp16-0077cc?style=flat-square
