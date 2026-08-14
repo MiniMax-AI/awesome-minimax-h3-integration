@@ -1,56 +1,12 @@
-<div align="center">
+<p align="center">
+  <a href="https://github.com/MiniMax-AI/MiniMax-H3"><img src="https://raw.githubusercontent.com/MiniMax-AI/MiniMax-H3/main/assets/minimax-h3-header.gif" alt="MiniMax H3"></a>
+</p>
 
-<a href="https://www.minimax.io"><img src="https://img.shields.io/badge/MiniMax-H3-E73562?style=for-the-badge&labelColor=151218" alt="MiniMax H3" height="38"></a>
+# MiniMax H3 Integrations
 
-<h1>MiniMax-H3</h1>
+A community-maintained index of checkpoints, tools, and workflows for MiniMax H3.
 
-<p><strong>Open Ecosystem Index</strong></p>
-
-<p>Open-weight models, quants, text encoders, tools, and workflows for MiniMax's video model with native audio.</p>
-
-<p><a href="https://huggingface.co/MiniMaxAI/MiniMax-H3">Model card</a> · <a href="https://github.com/MiniMax-AI/MiniMax-H3">Official repo</a> · <a href="https://docs.comfy.org/tutorials/video/minimax/minimax-h3">ComfyUI guide</a></p>
-
-</div>
-
-> **What this is.** A list of H3 models, tools, and workflows. It combines MiniMax's GitHub and Hugging Face scan (snapshot **2026-08-13**) with the community-maintained [`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3). A listing is not an endorsement. If something needs a patched ComfyUI build, extra nodes, or has no stated license, that is called out next to it.
->
-> **Curation.** Community repositories need at least **100 ⭐** to be listed. Core open-source runtimes are included separately because they are part of the H3 serving stack.
->
-> **Sizes are binary units** — `GiB = bytes / 1024³`, `MiB = bytes / 1024²` — which is what your OS, `du`, and the Hugging Face UI report. (Community lists often print these same numbers labelled "GB"; the numbers agree, the label does not.)
-
-<details>
-<summary><b>Table of Contents</b></summary>
-
-* [Models](#models)
-  * [Checkpoints](#checkpoints)
-  * [Turbo (Acceleration LoRA)](#turbo)
-  * [Quantized Models](#quants)
-    * [GGUF](#gguf)
-* [Text Encoders](#text-encoder)
-* [Separated Components](#components)
-  * [VAE (Video & Audio)](#components-vae)
-  * [Tiny Autoencoder (TAE)](#tae)
-  * [Image VAE](#imagevae)
-  * [Ref Patch](#refpatch)
-* [Style & Utility LoRA](#lora)
-* [Recommended Workflows](#recipes)
-  * [Pick a stack by VRAM](#recipes-vram)
-  * [Prompting chain](#recipes-prompt)
-* [Training & Fine-tuning](#training)
-* [Core Open-Source Runtimes](#partners)
-* [Inference Engines & Runtimes](#engines)
-* [ComfyUI Nodes](#nodes)
-* [Guides & Tutorials](#guides)
-* [Workflow & Technical Notes](#wf)
-* [Compatibility, Patches & Licensing](#compat)
-* [Quick Pick](#quickpick)
-* [Thanks](#credits)
-
-</details>
-
-<a id="intro"></a>
-
-## Intro
+## Official resources
 
 * [MiniMax-H3 official model card](https://huggingface.co/MiniMaxAI/MiniMax-H3) · [official repository](https://github.com/MiniMax-AI/MiniMax-H3)
 * [Video Prompt Writing Guide — Base (FL2VA)](https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/VIDEO_PROMPT_WRITING_GUIDE_base_en.md)
@@ -59,7 +15,7 @@
 
 <a id="partners"></a>
 
-## Core Open-Source Runtimes
+## Deployment paths
 
 These projects are the main open-source options for serving H3 outside a ComfyUI workflow.
 
@@ -72,7 +28,7 @@ These projects are the main open-source options for serving H3 outside a ComfyUI
 
 <a id="models"></a>
 
-## Models
+## Models and checkpoints
 
 MiniMax-H3 takes text, images, video, and audio as input, then generates video with **native stereo audio**. It supports clips up to **2K** and **15 seconds**. There are two base variants:
 
@@ -354,7 +310,6 @@ The fine-tunes themselves are third-party and are not itemised here; browse [`Dm
 * **`DmitryDB/MiniMax-H3-INT8-Lean-ConvRot`** and **`DmitryDB/MiniMax-H3-ComfyUI-Quants`** are the *same repo* — the author merged and rebranded. Likewise **`…-INT8-Lean-ConvRot-Dynamic-Time-Separate-QKV`** and **`…-DynTime-sQKV`**. Both names in each pair resolve to the same files, so don't download twice.
 * **`t8star/minimax_h3_ref2va_patchin_hf102`** is a weight *modification*, not a quant: +2 % on the 2×2 spatial high-frequency patch in the video-input projection. The author's own tests showed a weak HF-agent gain and did **not** confirm the "oily/waxy" look was removed. Treat as experimental.
 * **`Winnougan/MiniMax-H3-INT4_Convrot_ComfyUI`** ships a matching quantized text encoder: [`qwen3vl_32b_minimax_h3-w4a8_convrot.safetensors`](https://huggingface.co/Winnougan/MiniMax-H3-INT4_Convrot_ComfyUI/resolve/main/qwen3vl_32b_minimax_h3-w4a8_convrot.safetensors).
-* **`Kijai/MiniMax-H3-experimental`** ships an INT8 ConvRot video VAE ([2.95 GiB](https://huggingface.co/Kijai/MiniMax-H3-experimental/resolve/main/minimax_h3_video_vae_int8_convrot.safetensors)) and a rank-256 BF16 FL2VA↔Ref2VA delta LoRA (2.40 GiB). See [Components](#components).
 * **`unsloth/MiniMax-H3-GGUF`** also carries Qwen3-VL text-encoder GGUFs: `Q2_K_M` 12.2 GiB and `Q4_K_M` 17.0 GiB.
 * **`DmitryDB/MiniMax-H3-ComfyUI-Quants`** also carries VAE files: video VAE FP16 4.85 GiB, audio VAE FP32 577 MiB.
 * **`DiffSynth-Studio/MiniMax-H3-NF4`** bundles NF4 TE + video VAE + audio VAE. Requires [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio); the project states a **minimum of 8 GB VRAM** on this path.
@@ -394,7 +349,7 @@ The `nvfp4_awq` build at **14.61 GiB** is the smallest official TE and the one t
 
 <a id="components"></a>
 
-## Separated Components
+## Components
 
 <a id="components-vae"></a>
 
@@ -446,7 +401,7 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 
 <a id="lora"></a>
 
-## Style & Utility LoRA
+## LoRAs
 
 Acceleration LoRAs live in [Turbo](#turbo). This section covers everything else.
 
@@ -464,20 +419,9 @@ Acceleration LoRAs live in [Turbo](#turbo). This section covers everything else.
 | :--- | :---: | :--- |
 | [![][gh-lightx2v]](https://huggingface.co/lightx2v/MiniMax-H3-Prompt-Rewriter-LoRA) **Prompt Rewriter** | 3.48 GiB | A Qwen3.6-27B fine-tune that rewrites a short prompt into H3's expected three-part structure. This is a *language-model* LoRA — it does not load into the DiT. |
 
-### Experimental
-
-These are research artefacts, not production adapters. Read each card before spending download bandwidth.
-
-| LoRA | Notes |
-| :--- | :--- |
-| [![][gh-bghira]](https://huggingface.co/bghira/minimax-h3-anyflow-wip) **anyflow-wip** | SimpleTuner work-in-progress checkpoints (steps 200 / 300 / 400 / 500 + EMA). Research builds, explicitly not production-tuned. |
-| [![][gh-Kijai]](https://huggingface.co/Kijai/MiniMax-H3-experimental/tree/main/loras) **FL2VA↔Ref2VA delta** | Rank-256 BF16 adapter capturing the difference between the two checkpoints, 2.40 GiB. Mechanically extracted; **no confirmed use case yet**. Same class as the delta-LoRA experiments other authors have published — a randomized-SVD approximation of a weight difference, not a trained LoRA, and not generation-tested. |
-
-Check the licence and the likeness rights of any third-party LoRA you deploy commercially.
-
 <a id="recipes"></a>
 
-## Recommended Workflows
+## Workflows
 
 <a id="recipes-vram"></a>
 
@@ -502,7 +446,7 @@ Find your GPU in the table, then use the notes to decide what to change.
 
 ### Prompting
 
-H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<Video X>` / `<Audio X>` reference tags, and `【台词】` / `<d>` for dialogue. Start from the official guides, then pick one tool — layering three prompt builders is how you get contradictory instructions in a single prompt.
+H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<Video X>` / `<Audio X>` reference tags, and `<d>` for dialogue. Start with the official guides, then use one prompt tool at a time.
 
 **Read first:** [Base prompt guide](https://github.com/MiniMax-AI/MiniMax-H3/blob/main/VIDEO_PROMPT_WRITING_GUIDE.md) · [Reference-mode prompt guide](https://github.com/MiniMax-AI/MiniMax-H3/blob/main/VIDEO_PROMPT_WRITING_GUIDE_REF.md)
 
@@ -514,7 +458,7 @@ H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<
 | [`awesome-minimax-h3-prompts`](https://github.com/BeatAPI/awesome-minimax-h3-prompts) | Prompt corpus with WebM examples and author attribution, in five categories: story, action/fantasy, ad/product, music performance, vlog. |
 | [`minimax-h3-prompt-skill-T8`](https://github.com/T8mars/minimax-h3-prompt-skill-T8) | "Creative DNA" case library, installable as an agent skill, with an Electron desktop viewer. |
 
-If you run H3 from a coding agent instead of the ComfyUI canvas, see: [`Minimax-H3-Prompt-AgentSkill`](https://github.com/benjiyaya/Minimax-H3-Prompt-AgentSkill) · [`minimax-h3-opencode-skills`](https://github.com/unknowlei/minimax-h3-opencode-skills) (director, routing, and multi-shot planning) · [`ComfyUI-Agent-Kit`](https://github.com/SlavaSexton/ComfyUI-Agent-Kit) (shared by Claude Code, Codex, Gemini CLI, and Qwen Code) · [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) (`MiniMaxRefToVideo2`, official prompt format, `@图片1 @音频1 @视频1`, `切镜3.5`, `【台词】`).
+If you run H3 from a coding agent instead of the ComfyUI canvas, see: [`Minimax-H3-Prompt-AgentSkill`](https://github.com/benjiyaya/Minimax-H3-Prompt-AgentSkill) · [`minimax-h3-opencode-skills`](https://github.com/unknowlei/minimax-h3-opencode-skills) (director, routing, and multi-shot planning) · [`ComfyUI-Agent-Kit`](https://github.com/SlavaSexton/ComfyUI-Agent-Kit) (shared by Claude Code, Codex, Gemini CLI, and Qwen Code) · [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) (`MiniMaxRefToVideo2`, with the official reference and dialogue format).
 
 <a id="training"></a>
 
@@ -534,7 +478,7 @@ If you run H3 from a coding agent instead of the ComfyUI canvas, see: [`Minimax-
 
 <a id="engines"></a>
 
-## Inference Engines & Runtimes
+## Runtimes
 
 | Engine | ⭐ | H3 support |
 | :--- | ---: | :--- |
@@ -549,8 +493,6 @@ If you run H3 from a coding agent instead of the ComfyUI canvas, see: [`Minimax-
 <a id="nodes"></a>
 
 ## ComfyUI Nodes
-
-Star counts are from the **2026-08-13** snapshot. Community listings below 100 ⭐ are excluded.
 
 ### Acceleration
 
@@ -572,7 +514,7 @@ The only nodes here with a **reproducible measurement table** are FirstBlockCach
 | [`ComfyUI_MiniMaxH3_Director`](https://github.com/AIMixer/ComfyUI_MiniMaxH3_Director) ![Conditioning][cat-cond] | 359 | The original Director. |
 | [`ComfyUI-MiniMaxH3-Easy`](https://github.com/nkxx188/ComfyUI-MiniMaxH3-Easy) ![Conditioning][cat-cond] | 332 | One compact workflow for T2V, I2V, first/last-frame, and reference video. Unified multi-media input with `@` references and inline dialogue blocks. |
 | [`ComfyUI-MiniMaxH3-Director`](https://github.com/seesee75-commits/ComfyUI-MiniMaxH3-Director) ![Conditioning][cat-cond] | 182 | A real timeline editor — drag media onto tracks, trim on a ruler, one prompt per shot, with live sampling preview, retakes, and shot chaining. The compiled final prompt stays visible while you edit. |
-| [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) ![Conditioning][cat-cond] | 178 | `MiniMaxRefToVideo2` — official skill prompt format, `@图片1 @音频1 @视频1`, `切镜3.5`, `【台词】`. |
+| [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) ![Conditioning][cat-cond] | 178 | `MiniMaxRefToVideo2` supports the official reference and dialogue format. |
 
 ### Upscaling, loading & repair
 
@@ -611,7 +553,7 @@ Read these before installing anything. Most "H3 ignores my prompt" reports are p
 
 <a id="wf"></a>
 
-## Workflow & Technical Notes
+## Workflow notes
 
 <a id="wf-comfyui"></a>
 
@@ -679,7 +621,7 @@ For everything else, check the repository or model card. This index does not res
 
 <a id="quickpick"></a>
 
-## Start here
+## Quick start
 
 Choose the row that matches your setup:
 
@@ -696,7 +638,7 @@ Choose the row that matches your setup:
 
 <a id="credits"></a>
 
-## Thanks
+## Acknowledgements
 
 This index is only possible because other people made the models, tools, tests, and documentation it points to. Thank you to the MiniMax, ComfyUI, SGLang, vLLM, NVIDIA, and Unsloth teams, and to the independent maintainers who keep testing H3 on real hardware.
 
@@ -712,6 +654,10 @@ More specific thanks go to:
 * Every quantizer and workflow maintainer represented above. Their files, testing time, and write-ups make local H3 use much easier.
 
 If you spot a wrong number, broken link, or missing compatibility note, please open an issue or send a correction.
+
+## Contact
+
+For MiniMax H3 questions, contact [model@minimax.io](mailto:model@minimax.io).
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [gh-MiniMaxAI]: https://img.shields.io/badge/%F0%9F%A4%97-MiniMaxAI-FFD21E?style=flat-square
