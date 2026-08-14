@@ -1,17 +1,18 @@
-# MiniMax-H3 — Open Ecosystem Index
-
-The official index of open-weight variants, quantizations, text encoders, components, tools, and workflows for **MiniMax-H3**, the omni-modal video + native-audio generation model by [MiniMax](https://huggingface.co/MiniMaxAI).
-
 <div align="center">
 
-[![MiniMax][mm-shield]][mm-url]
-[![Model][hf-shield]][hf-url]
-[![GitHub][gh-shield]][gh-url]
-[![ComfyUI][comfy-shield]][comfy-url]
+<a href="https://www.minimax.io"><img src="https://img.shields.io/badge/MiniMax-H3-E73562?style=for-the-badge&labelColor=151218" alt="MiniMax H3" height="38"></a>
+
+<h1>MiniMax-H3</h1>
+
+<p><strong>Open Ecosystem Index</strong></p>
+
+<p>Open-weight models, quants, text encoders, tools, and workflows for MiniMax's video model with native audio.</p>
+
+<p><a href="https://huggingface.co/MiniMaxAI/MiniMax-H3">Model card</a> · <a href="https://github.com/MiniMax-AI/MiniMax-H3">Official repo</a> · <a href="https://docs.comfy.org/tutorials/video/minimax/minimax-h3">ComfyUI guide</a></p>
 
 </div>
 
-> **Scope.** This page merges MiniMax's own ecosystem scan (GitHub + Hugging Face, snapshot **2026-08-13**) with the community-curated [`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3). It is a *pointer index*, not an endorsement: third-party weights and nodes are listed because people use them, not because MiniMax has validated them. Where a file needs a patched ComfyUI, an extra custom node, or has no stated license, that is called out inline.
+> **What this is.** A map of the H3 ecosystem, compiled from MiniMax's GitHub and Hugging Face scan (snapshot **2026-08-13**) and the community-maintained [`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3). Listings are references, not endorsements. Requirements such as a patched ComfyUI build, extra nodes, or an unstated license are flagged where they matter.
 >
 > **Sizes are binary units** — `GiB = bytes / 1024³`, `MiB = bytes / 1024²` — which is what your OS, `du`, and the Hugging Face UI report. (Community lists often print these same numbers labelled "GB"; the numbers agree, the label does not.)
 
@@ -58,7 +59,7 @@ The official index of open-weight variants, quantizations, text encoders, compon
 
 ## Models
 
-MiniMax-H3 is an omni-modal generative system. It reads multimodal context — text, images, video, audio — in one unified pass, and generates video with **native stereo audio**, up to **2K** resolution and **15 seconds** per clip. Two base variants ship:
+MiniMax-H3 takes text, images, video, and audio as input, then generates video with **native stereo audio**. It supports clips up to **2K** and **15 seconds**. There are two base variants:
 
 * **H3-Base-FL2VA** (first-and-last-frame mode) — takes zero, one, or two input images. Zero images = text-to-video; one image = first- *or* last-frame-to-video; two images = first-and-last-frame-to-video.
 * **H3-Base-Ref2VA** (omni-reference mode) — takes up to **9 images, 3 video clips (2–15 s each), and 3 audio clips**, to a maximum of **12 files** total.
@@ -87,15 +88,15 @@ The two are separate checkpoints of identical size. FL2VA was trained only on ke
 | Ref2VA | `minimax_h3_ref2va_pruned` | ![fp8][badge-fp8] | 19.52 GiB | [![][gh-Comfy--Org]](https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_fp8_scaled.safetensors) |
 | Ref2VA | `minimax_h3_ref2va_pruned` | ![int8][badge-int8] | 19.53 GiB | [![][gh-Comfy--Org]](https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors) |
 
-**"Pruned"** means AdaLN-pruned: roughly 40 % smaller, ComfyUI-only, and the base for most consumer-GPU quants below. `pruned_int8_convrot` at **19.53 GiB** is the de-facto default for 24 GB cards.
+**"Pruned"** means AdaLN-pruned. These models are roughly 40% smaller, work only in ComfyUI, and underpin most of the consumer-GPU quants below. For a 24 GB card, `pruned_int8_convrot` (**19.53 GiB**) is the usual starting point.
 
 <a id="turbo"></a>
 
 ### Turbo (Acceleration LoRA)
 
-Step-distilled LoRAs that render joint video + synchronized stereo audio in **4 sampling steps** instead of ~20. Two names, one distillation line: [`ModelTC/Minimax-H3-Turbo`](https://github.com/ModelTC/Minimax-H3-Turbo) (Apache-2.0, "distill MiniMax-H3 into 4 steps") is the training side, [`lightx2v/Minimax-h3-Turbo`](https://huggingface.co/lightx2v/Minimax-h3-Turbo) is the weight distribution. The DMD training config is public at `configs/minimax_h3/dmd`: **1344×768, `video_flow_shift=6`, `audio_flow_shift=3`, LoRA alpha 128, 4 steps**.
+These step-distilled LoRAs render video and synchronized stereo audio in **4 sampling steps** rather than roughly 20. [`ModelTC/Minimax-H3-Turbo`](https://github.com/ModelTC/Minimax-H3-Turbo) (Apache-2.0) contains the training work; [`lightx2v/Minimax-h3-Turbo`](https://huggingface.co/lightx2v/Minimax-h3-Turbo) hosts the weights. The public DMD config is at `configs/minimax_h3/dmd`: **1344×768, `video_flow_shift=6`, `audio_flow_shift=3`, LoRA alpha 128, 4 steps**.
 
-**Which checkpoint to use** — the practical findings from [`Larryvrh/ComfyUI-MiniMax-H3-Turbo`](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo) (417★), whose sampler node the full-checkpoint LoRAs require:
+**Choosing a checkpoint** — based on tests from [`Larryvrh/ComfyUI-MiniMax-H3-Turbo`](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo) (417★). Full-checkpoint LoRAs require its sampler node:
 
 * Default to **`minimax_h3_turbo_v4_step600_ema`**.
 * At 4 steps with large motion you will see **motion smear**; going to **6–8 steps** substantially removes it.
@@ -253,7 +254,7 @@ A community repack that carries FL2VA **and** Ref2VA in every combination, so yo
 
 #### GGUF Quantized Models
 
-GGUF is the finest-grained ladder available for H3 — useful when you need to land on a specific VRAM number rather than a specific method. Works with [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp), ComfyUI (via a GGUF loader node), and Unsloth.
+GGUF offers the most granular size options for H3. Use it when VRAM is the constraint. It works with [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp), ComfyUI (through a GGUF loader node), and Unsloth.
 
 **Non-pruned sources:** [`Abiray/MiniMax-H3-GGUF`](https://huggingface.co/Abiray/MiniMax-H3-GGUF) · [`vantagewithai/MiniMax-H3-comfyUI-GGUF`](https://huggingface.co/vantagewithai/MiniMax-H3-comfyUI-GGUF) · [`realrebelai/MiniMax-H3_GGUFs`](https://huggingface.co/realrebelai/MiniMax-H3_GGUFs)
 **Pruned sources:** [`unsloth/MiniMax-H3-GGUF`](https://huggingface.co/unsloth/MiniMax-H3-GGUF) · [`MarxistLeninist/MiniMax-H3-FL2VA-Pruned-IQ1-GGUF`](https://huggingface.co/MarxistLeninist/MiniMax-H3-FL2VA-Pruned-IQ1-GGUF) · [`Abiray/MiniMax-H3-Pruned-GGUF`](https://huggingface.co/Abiray/MiniMax-H3-Pruned-GGUF) · [`molbal/MiniMax-H3-GGUF`](https://huggingface.co/molbal/MiniMax-H3-GGUF) · [`leejet/MiniMax-H3-GGUF`](https://huggingface.co/leejet/MiniMax-H3-GGUF)
@@ -492,7 +493,7 @@ Check the licence and the likeness rights of any third-party LoRA you deploy com
 
 ### By VRAM and hardware
 
-Pick the row that matches your card, then read the reasoning column — it says *why*, so you can substitute parts intelligently rather than copying blindly.
+Start with the row for your GPU. The reasoning column explains the trade-offs, so you can swap components with confidence.
 
 | Situation | Stack | Why this combination |
 | :--- | :--- | :--- |
@@ -630,9 +631,9 @@ The only nodes here with a **reproducible measurement table** are FirstBlockCach
 
 Prompt-building nodes are listed with the rest of the prompting stack under [Prompting](#recipes-prompt) rather than duplicated here: `1038lab/ComfyUI-MiniMax-H3-Promptor` ![Prompt][cat-prompt], `ethanfel/ComfyUI-MiniMax-H3-Guide` ![Prompt][cat-prompt], `T8mars/comfyui-minimax-h3-prompt-enhancer-T8` ![Prompt][cat-prompt], `Adudeguyman/ComfyUI-Fantastic-MiniMaxH3-PromptBuilder` ![Prompt][cat-prompt], `duckyshell/ComfyUI-MiniMaxH3-Prompt-Writer` ![Prompt][cat-prompt], `benjiyaya/ComfyUI-H3-VisionPromptor` ![Prompt][cat-prompt].
 
-### Special Stuff
+### Standalone tools
 
-Three things that are **not** ComfyUI nodes, and are worth knowing about for that reason.
+These projects are not ComfyUI nodes, but they can still be useful in an H3 workflow.
 
 | Project | ★ | What it is |
 | :--- | ---: | :--- |
@@ -731,9 +732,9 @@ For everything else, check the repository or model card. This index does not res
 
 <a id="quickpick"></a>
 
-## Quick Pick
+## Start here
 
-If you want one line to copy rather than a table to study:
+Choose the row that matches your setup:
 
 | Your situation | Take this |
 | :--- | :--- |
@@ -750,7 +751,7 @@ If you want one line to copy rather than a table to study:
 
 ## Sources
 
-This page is a merge of two scans, and most of the primary work behind it is other people's.
+This index combines two scans. Most of the underlying work comes from the people and projects linked here.
 
 [`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3) is the community-curated index this page is built on top of and modelled after. Its structure, its table idiom, and roughly twenty Hugging Face uploaders our own enumeration never reached all come from there, and it remains the more complete of the two lists.
 
@@ -764,18 +765,9 @@ Where specific figures and findings in this page come from:
 * [`scottmudge`](https://github.com/scottmudge/ComfyUI_MinimaxH3HybridLoader) — the tensor-level FL2VA/Ref2VA diff that explains the quality gap between the two checkpoints.
 * Every quantizer in the tables above — the 24 GB path exists because they spent their own bandwidth building it.
 
-Corrections and additions are welcome, including "this number is wrong". For a document of this size that is the most useful issue you can file.
+Corrections and additions are welcome — especially a wrong number, broken link, or missing compatibility note.
 
 <!-- MARKDOWN LINKS & IMAGES -->
-[mm-shield]: https://img.shields.io/badge/MiniMax-E73562?style=for-the-badge
-[mm-url]: https://www.minimax.io
-[hf-shield]: https://img.shields.io/badge/Hugging%20Face-MiniMax--H3-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black
-[hf-url]: https://huggingface.co/MiniMaxAI/MiniMax-H3
-[gh-shield]: https://img.shields.io/badge/GitHub-MiniMax--H3-181717?style=for-the-badge&logo=github&logoColor=white
-[gh-url]: https://github.com/MiniMax-AI/MiniMax-H3
-[comfy-shield]: https://img.shields.io/badge/ComfyUI-native%20support-211927?style=for-the-badge
-[comfy-url]: https://docs.comfy.org/tutorials/video/minimax/minimax-h3
-
 [gh-MiniMaxAI]: https://img.shields.io/badge/MiniMaxAI-FFD21E?style=flat-square&logo=huggingface&logoColor=black
 [gh-Comfy--Org]: https://img.shields.io/badge/Comfy--Org-FFD21E?style=flat-square&logo=huggingface&logoColor=black
 [gh-Abiray]: https://img.shields.io/badge/Abiray-FFD21E?style=flat-square&logo=huggingface&logoColor=black
