@@ -129,14 +129,10 @@ Audio at 4 steps can crackle. Using 6–8 steps is the simplest way to reduce it
 
 ### Quantized Models
 
-Unified tables for FL2VA and Ref2VA. **Pruned** marks AdaLN-pruned checkpoints (smaller, ComfyUI-only). **Method** is the quantization scheme. When several people published the same quant, the sources are joined with `┊`.
-
-**Key** — `ConvRot` = ConvRotation INT8/INT4 · `Lean`/`HQ` = selective BF16 island retention · `Lite` = maximal compression · `DT-sQKV` = dynamic-time separate-QKV (**core patch required**) · `W4A8` / `W4A4` = 4-bit weight, 8-/4-bit activation · `NF4` = bitsandbytes 4-bit · `OrbitQuant` = native W4A4 packed path · `Hybrid NVFP4` = partial NVFP4 layers, Blackwell only · `CMF` = packed container format.
-
-> ⚠️ Rows marked ⚠️ **do not load in unmodified ComfyUI** — they need the core patch published alongside [`DmitryDB/MiniMax-H3-DynTime-sQKV`](https://huggingface.co/DmitryDB/MiniMax-H3-DynTime-sQKV). Pin your ComfyUI version before patching.
+MiniMax provides the original BF16 checkpoints. The files below are community conversions and repackaged variants; they are not official MiniMax releases. Use the documentation for your runtime to confirm compatibility before downloading.
 
 <details>
-<summary><b>FL2VA — Unified Quantization Table</b></summary>
+<summary><b>Community FL2VA conversions</b></summary>
 
 | Pruned | Precision | Method | Size | Download |
 | :---: | :---: | :--- | :---: | :--- |
@@ -161,7 +157,7 @@ Unified tables for FL2VA and Ref2VA. **Pruned** marks AdaLN-pruned checkpoints (
 | | ![int8][badge-int8] | ⚠️ DT-sQKV ConvRot Lean | 27.99 GiB | [![][gh-DmitryDB]](https://huggingface.co/DmitryDB/MiniMax-H3-DynTime-sQKV/resolve/main/FL2VA/MiniMax-H3_FL2VA-DT-sQKV-INT8-ConvRot-HQ.safetensors) |
 | ✓ | ![bf16][badge-bf16] | BF16 | 37.46 GiB | [![][gh-Comfy--Org]](https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_fl2va_pruned_bf16.safetensors) |
 | ✓ | ![fp8][badge-fp8] | FP8 scaled | 19.52 GiB | [![][gh-Comfy--Org]](https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_fl2va_pruned_fp8_scaled.safetensors) |
-| ✓ | ![int8][badge-int8] | **ConvRot — the 24 GB default** | 19.53 GiB | [![][gh-Comfy--Org]](https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors) ┊ [![][gh-Abiray]](https://huggingface.co/Abiray/Minimax-H3-nvfp4-INT4-INT8-Convrot/resolve/main/MiniMax_H3_FL2VA_pruned_int8_convrot.safetensors) |
+| ✓ | ![int8][badge-int8] | ConvRot | 19.53 GiB | [![][gh-Comfy--Org]](https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors) ┊ [![][gh-Abiray]](https://huggingface.co/Abiray/Minimax-H3-nvfp4-INT4-INT8-Convrot/resolve/main/MiniMax_H3_FL2VA_pruned_int8_convrot.safetensors) |
 | ✓ | ![nvfp4][badge-nvfp4] | NVFP4 | 18.69 GiB | [![][gh-rockerBOO]](https://huggingface.co/rockerBOO/minimax-h3-nvfp4/resolve/main/minimax_h3_fl2va_pruned_nvfp4.safetensors) |
 | ✓ | ![nvfp4][badge-nvfp4] | NVFP4 + ConvRot INT8 | 18.69 GiB | [![][gh-rockerBOO]](https://huggingface.co/rockerBOO/minimax-h3-nvfp4/resolve/main/minimax_h3_fl2va_pruned_nvfp4_convrot_int8.safetensors) |
 | ✓ | ![nvfp4][badge-nvfp4] | NVFP4 | 11.67 GiB | [![][gh-Abiray]](https://huggingface.co/Abiray/Minimax-H3-nvfp4-INT4-INT8-Convrot/resolve/main/MiniMax_H3_FL2VA_pruned_nvfp4.safetensors) |
@@ -178,7 +174,7 @@ Unified tables for FL2VA and Ref2VA. **Pruned** marks AdaLN-pruned checkpoints (
 </details>
 
 <details>
-<summary><b>Ref2VA — Unified Quantization Table</b></summary>
+<summary><b>Community Ref2VA conversions</b></summary>
 
 | Pruned | Precision | Method | Size | Download |
 | :---: | :---: | :--- | :---: | :--- |
@@ -199,7 +195,7 @@ Unified tables for FL2VA and Ref2VA. **Pruned** marks AdaLN-pruned checkpoints (
 | | ![int8][badge-int8] | ⚠️ DT-sQKV ConvRot Lean | 27.99 GiB | [![][gh-DmitryDB]](https://huggingface.co/DmitryDB/MiniMax-H3-DynTime-sQKV/resolve/main/Ref2VA/MiniMax-H3_Ref2VA-DT-sQKV-INT8-ConvRot-HQ.safetensors) |
 | ✓ | ![bf16][badge-bf16] | BF16 | 37.46 GiB | [![][gh-Comfy--Org]](https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_bf16.safetensors) |
 | ✓ | ![fp8][badge-fp8] | FP8 scaled | 19.52 GiB | [![][gh-Comfy--Org]](https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_fp8_scaled.safetensors) |
-| ✓ | ![int8][badge-int8] | **ConvRot — the 24 GB default** | 19.53 GiB | [![][gh-Comfy--Org]](https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors) ┊ [![][gh-Abiray]](https://huggingface.co/Abiray/Minimax-H3-nvfp4-INT4-INT8-Convrot/resolve/main/MiniMax_H3_Ref2VA_pruned_int8_convrot.safetensors) |
+| ✓ | ![int8][badge-int8] | ConvRot | 19.53 GiB | [![][gh-Comfy--Org]](https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors) ┊ [![][gh-Abiray]](https://huggingface.co/Abiray/Minimax-H3-nvfp4-INT4-INT8-Convrot/resolve/main/MiniMax_H3_Ref2VA_pruned_int8_convrot.safetensors) |
 | ✓ | ![nvfp4][badge-nvfp4] | NVFP4 | 18.69 GiB | [![][gh-rockerBOO]](https://huggingface.co/rockerBOO/minimax-h3-nvfp4/resolve/main/minimax_h3_ref2va_pruned_nvfp4.safetensors) |
 | ✓ | ![nvfp4][badge-nvfp4] | NVFP4 + ConvRot INT8 | 18.69 GiB | [![][gh-rockerBOO]](https://huggingface.co/rockerBOO/minimax-h3-nvfp4/resolve/main/minimax_h3_ref2va_pruned_nvfp4_convrot_int8.safetensors) |
 | ✓ | ![nvfp4][badge-nvfp4] | NVFP4 | 11.67 GiB | [![][gh-Abiray]](https://huggingface.co/Abiray/Minimax-H3-nvfp4-INT4-INT8-Convrot/resolve/main/MiniMax_H3_Ref2VA_pruned_nvfp4.safetensors) |
@@ -213,11 +209,9 @@ Unified tables for FL2VA and Ref2VA. **Pruned** marks AdaLN-pruned checkpoints (
 </details>
 
 <details>
-<summary><b>Multi-tier repack — DeepBeepMeep/MiniMax-H3</b> (29 files, 549 GiB — every precision × pruning combination in one place)</summary>
+<summary><b>Community multi-tier repack</b></summary>
 
-This community repack includes both FL2VA and Ref2VA at several sizes: full `bf16` (61.7 GiB) and `int8_convrot` (31.7 GiB); `pruned` `bf16` (38.6 GiB) and `int8_convrot` (20.6 GiB); and `pruned_rank8` `bf16` (37.5 GiB) and `int8_convrot` (19.7 GiB). It also includes VAEs (video `fp16` 4.85 GiB, video `fp8mix` 2.60 GiB, audio `fp32` 577 MiB), a Qwen3-VL-32B text encoder (`nvfp4_awq`, `Q4_K_M` GGUF, and quanto-INT8 at 24.89 GiB), and SeedVR2 upscaler checkpoints.
-
-⚠️ **No license is stated on the repo.** Clarify usage rights before redistributing or shipping anything built on it. [Repo](https://huggingface.co/DeepBeepMeep/MiniMax-H3)
+[`DeepBeepMeep/MiniMax-H3`](https://huggingface.co/DeepBeepMeep/MiniMax-H3) collects community files at several precisions. Check the model card for compatibility and licensing.
 
 </details>
 
@@ -225,13 +219,10 @@ This community repack includes both FL2VA and Ref2VA at several sizes: full `bf1
 
 #### GGUF Quantized Models
 
-GGUF offers the most granular size options for H3. Use it when VRAM is the constraint. It works with [stable-diffusion.cpp](https://github.com/leejet/stable-diffusion.cpp), ComfyUI (through a GGUF loader node), and Unsloth.
-
-**Non-pruned sources:** [`Abiray/MiniMax-H3-GGUF`](https://huggingface.co/Abiray/MiniMax-H3-GGUF) · [`vantagewithai/MiniMax-H3-comfyUI-GGUF`](https://huggingface.co/vantagewithai/MiniMax-H3-comfyUI-GGUF) · [`realrebelai/MiniMax-H3_GGUFs`](https://huggingface.co/realrebelai/MiniMax-H3_GGUFs)
-**Pruned sources:** [`unsloth/MiniMax-H3-GGUF`](https://huggingface.co/unsloth/MiniMax-H3-GGUF) · [`MarxistLeninist/MiniMax-H3-FL2VA-Pruned-IQ1-GGUF`](https://huggingface.co/MarxistLeninist/MiniMax-H3-FL2VA-Pruned-IQ1-GGUF) · [`Abiray/MiniMax-H3-Pruned-GGUF`](https://huggingface.co/Abiray/MiniMax-H3-Pruned-GGUF) · [`molbal/MiniMax-H3-GGUF`](https://huggingface.co/molbal/MiniMax-H3-GGUF) · [`leejet/MiniMax-H3-GGUF`](https://huggingface.co/leejet/MiniMax-H3-GGUF)
+GGUF files are community conversions, not part of the official MiniMax H3 release. Use a compatible loader and follow its documentation.
 
 <details>
-<summary><b>FL2VA GGUF</b></summary>
+<summary><b>Community FL2VA GGUF conversions</b></summary>
 
 | Pruned | Quant | Size | Download |
 | :---: | :---: | :---: | :--- |
@@ -266,7 +257,7 @@ GGUF offers the most granular size options for H3. Use it when VRAM is the const
 </details>
 
 <details>
-<summary><b>Ref2VA GGUF</b></summary>
+<summary><b>Community Ref2VA GGUF conversions</b></summary>
 
 | Pruned | Quant | Size | Download |
 | :---: | :---: | :---: | :--- |
@@ -584,40 +575,36 @@ The W4A4 weights are not loadable without [`ComfyUI-OrbitQuant`](https://github.
 
 <a id="compat"></a>
 
-## Compatibility, Patches & Licensing
+## Compatibility & Licensing
 
-### Breaking change — INT8 is now native
+### ComfyUI INT8
 
-INT8 support landed in ComfyUI core (commit `1a510f04`). The author of [`BobJohnson24/ComfyUI-INT8-Fast`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) (286⭐) states plainly that **older I8Fast quantizations will most likely fail to load** against the native path because the tensor names do not match. Two ways out: run the repo's `convert_comfy_quant.py` to convert an existing file, or download a quant that was produced for the native format. Any tutorial written before this commit should be read with that in mind.
+ComfyUI includes native INT8 support. Older I8Fast files use different tensor names; use [`convert_comfy_quant.py`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) or download a native-format quant.
 
-### Nodes that modify ComfyUI itself
+### ComfyUI patches
 
-Three tiers, worth distinguishing before you install:
+Some community tools modify or patch ComfyUI. Check the project's documentation and keep your ComfyUI version compatible.
 
-| Approach | Nodes | Risk |
+| Type | Project | Notes |
 | :--- | :--- | :--- |
-| **Writes to disk** — modifies core files | `HELPMEEADICE/TE-Speed-MiniMaxH3-OSS` (`python patch_model.py`, hooks `MiniMaxH3Model._run_blocks`, revertible with `--revert`) | A ComfyUI update can silently undo or conflict with the patch. Keep the revert command to hand. |
-| **Patches H3 internals at import** | the DT-sQKV core patch required by `DmitryDB`'s DT-sQKV files | **Pin your ComfyUI version.** These bind to internal call signatures that are not a stable API. |
-| **Runtime patch that self-validates** | `NikoDemon80/ComfyUI-H3-Motion-Context` | The safest of the three: nothing is written to disk, and on every start it checks its assumptions against the current ComfyUI source and refuses to run on a mismatch. **Prefer this pattern in production.** |
+| Core-file patch | [`TE-Speed-MiniMaxH3-OSS`](https://github.com/HELPMEEADICE/TE-Speed-MiniMaxH3-OSS) | Provides `patch_model.py` and `--revert`. |
+| Runtime patch | [`DmitryDB/MiniMax-H3-DynTime-sQKV`](https://huggingface.co/DmitryDB/MiniMax-H3-DynTime-sQKV) | Required for its DT-sQKV files. |
+| Runtime patch | [`ComfyUI-H3-Motion-Context`](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) | Checks its ComfyUI assumptions at startup. |
 
-### Version-specific behaviour
+### Reported environments
 
-* `T8mars/comfyui-minimax-h3-audio-T8` states its baseline as ComfyUI `0.31.0`, commit `cbbc9dab1`, Python 3.10+.
-* `huangserva/ComfyUI_MiniMaxH3_Director` was verified on RTX 4090 48 GB / ComfyUI 0.30.0 / PyTorch 2.11.0 + CUDA 12.8 / Ref2VA INT8.
+* [`comfyui-minimax-h3-audio-T8`](https://github.com/T8mars/comfyui-minimax-h3-audio-T8): ComfyUI `0.31.0`, commit `cbbc9dab1`, Python 3.10+.
+* [`ComfyUI_MiniMaxH3_Director`](https://github.com/huangserva/ComfyUI_MiniMaxH3_Director): RTX 4090 48 GB, ComfyUI 0.30.0, PyTorch 2.11.0, CUDA 12.8, Ref2VA INT8.
 
-### Duplicate repositories
-
-Two of the larger quant collections are published twice under different names. Check the file list before starting a second multi-gigabyte download — in both cases the contents are the same files.
-
-### Licensing at a glance
+### Licenses
 
 | License | Where |
 | :--- | :--- |
 | Apache-2.0 | `ModelTC/Minimax-H3-Turbo` and the Turbo LoRA line · Ref Patch |
 | MIT | `antirez/h3.c` |
-| ⚠️ **No license stated** | `DeepBeepMeep/MiniMax-H3` — the multi-tier repack is convenient, but there is no stated license on the repository. Treat it as unlicensed until the author says otherwise. |
+| No license stated | `DeepBeepMeep/MiniMax-H3` |
 
-For everything else, check the repository or model card. This index does not restate license terms it has not verified, and a missing row here means "not verified", not "permissive".
+For other projects, check the repository or model card.
 
 <a id="quickpick"></a>
 
@@ -651,6 +638,7 @@ More specific thanks go to:
 * [`Larryvrh`](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo) for the checkpoint comparisons behind the Turbo guidance.
 * [`Kijai`](https://github.com/kijai/ComfyUI-SolAttn_triton) for the NVIDIA Sol-Attn implementation and benchmark notes.
 * [`IAmIronMan42`](https://github.com/IAmIronMan42/MiniMax-H3-FineTuning) for the training work and the documented fixes.
+* [Salvatore Sanfilippo (antirez)](https://github.com/antirez) for the standalone H3 C/Metal inference engine.
 * Every quantizer and workflow maintainer represented above. Their files, testing time, and write-ups make local H3 use much easier.
 
 If you spot a wrong number, broken link, or missing compatibility note, please open an issue or send a correction.
