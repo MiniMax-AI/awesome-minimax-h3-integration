@@ -13,6 +13,19 @@ A community-maintained index of checkpoints, tools, and workflows for MiniMax H3
 * [Video Prompt Writing Guide — Reference (Ref2VA)](https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/VIDEO_PROMPT_WRITING_GUIDE_ref_en.md)
 * ComfyUI [day-0 blog post](https://blog.comfy.org/p/minimax-h3-day-0-support-in-comfyui) · [tutorial](https://docs.comfy.org/tutorials/video/minimax/minimax-h3)
 
+## Start here
+
+This is a short navigation guide, not a complete compatibility list.
+
+| Goal | Start with |
+| :--- | :--- |
+| Run the original model | [MiniMax H3 official repository](https://github.com/MiniMax-AI/MiniMax-H3) and its runtime documentation |
+| Use ComfyUI | [Official ComfyUI tutorial](https://docs.comfy.org/tutorials/video/minimax/minimax-h3) |
+| Run a smaller community conversion | [Quantized Models](#quants) or [GGUF Quantized Models](#gguf) |
+| Use accelerated community LoRAs | [Turbo](#turbo) |
+| Serve H3 | [Deployment paths](#partners) |
+| Run on Apple Silicon | [`antirez/h3.c`](https://github.com/antirez/h3.c) |
+
 <a id="partners"></a>
 
 ## Deployment paths
@@ -65,16 +78,10 @@ The checkpoints are the same size. FL2VA was trained only with keyframes and usu
 
 ### Turbo (Acceleration LoRA)
 
-These step-distilled LoRAs render video and synchronized stereo audio in **4 sampling steps** rather than roughly 20. [`ModelTC/Minimax-H3-Turbo`](https://github.com/ModelTC/Minimax-H3-Turbo) (Apache-2.0) contains the training work; [`lightx2v/Minimax-h3-Turbo`](https://huggingface.co/lightx2v/Minimax-h3-Turbo) hosts the weights. The public DMD config is at `configs/minimax_h3/dmd`: **1344×768, `video_flow_shift=6`, `audio_flow_shift=3`, LoRA alpha 128, 4 steps**.
+Turbo LoRAs are community acceleration models. Start with [`ModelTC/Minimax-H3-Turbo`](https://github.com/ModelTC/Minimax-H3-Turbo) and [`lightx2v/Minimax-h3-Turbo`](https://huggingface.co/lightx2v/Minimax-h3-Turbo), then use the workflow instructions provided by the project you choose.
 
-**Choosing a checkpoint** — based on tests from [`Larryvrh/ComfyUI-MiniMax-H3-Turbo`](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo) (417⭐). Full-checkpoint LoRAs require its sampler node:
-
-* Default to **`minimax_h3_turbo_v4_step600_ema`**.
-* At 4 steps with large motion you will see **motion smear**; going to **6–8 steps** substantially removes it.
-* If you must stay at 4 steps under heavy motion, **v1 `ckpt850`** handles it better than v4.
-* v4's improvement is mainly static-frame quality.
-
-Audio at 4 steps can crackle. Using 6–8 steps is the simplest way to reduce it.
+<details>
+<summary><b>Community Turbo checkpoint reference</b></summary>
 
 | Variant | Steps | Base | Precision | Size | Download |
 | :--- | :---: | :---: | :--- | :---: | :--- |
@@ -123,7 +130,7 @@ Audio at 4 steps can crackle. Using 6–8 steps is the simplest way to reduce it
 | `fl2v CMF · FL2VA` | 4 | Full | Q4TP (CMF) | 25.70 GiB | [![][gh-infosave]](https://huggingface.co/infosave/MiniMax-H3-Turbo-cmf/resolve/main/mmh3-turbo-fl2va-q4tp.cmf) |
 | `fl2v CMF · FL2VA (smaller)` | 4 | Full | Q2TP (CMF) | 20.12 GiB | [![][gh-infosave]](https://huggingface.co/infosave/MiniMax-H3-Turbo-cmf/resolve/main/mmh3-turbo-fl2va-q2tp.cmf) |
 
-*larryvrh also publishes 11 raw training checkpoints (`.bin`, 7.26–10.17 GiB: step 149/490/729/850/922, v2 step 298, v3 step 300, v4 step 150/600, v5 step 600) — [repo](https://huggingface.co/larryvrh/MiniMax-H3-Turbo-Lora/tree/main).*
+</details>
 
 <a id="quants"></a>
 
@@ -605,23 +612,6 @@ Some community tools modify or patch ComfyUI. Check the project's documentation 
 | No license stated | `DeepBeepMeep/MiniMax-H3` |
 
 For other projects, check the repository or model card.
-
-<a id="quickpick"></a>
-
-## Quick start
-
-Choose the row that matches your setup:
-
-| Your situation | Take this |
-| :--- | :--- |
-| 24 GB, first run | `pruned_int8_convrot` (**19.53 GiB**) + TE `nvfp4_awq` (**14.61 GiB**) + ComfyUI native nodes + `MiniMaxH3-Easy` |
-| 24 GB, want speed | the above + `TE-Speed-MiniMaxH3-OSS` + Turbo `v4_step600_ema` at **6–8 steps** |
-| 12–16 GB | `leejet` / `unsloth` pruned-Q4_K_M (**10.64 GiB**) or `Abiray` pruned-nvfp4 (**11.67 GiB**) + TE Q4_K_M, plus the separated VAE |
-| 8 GB | `MarxistLeninist` IQ1_S (**3.78 GiB**) or `leejet` pruned-Q2_K (**6.26 GiB**) + TE Q2_K (**7.91 GiB**) — expect visible quality loss |
-| Blackwell (RTX 50 / GB10) | [NVIDIA Sol-Attn](https://github.com/kijai/ComfyUI-SolAttn_triton) — **1.14–1.44×** over SageAttention, **−37 %** MLP peak VRAM |
-| Multi-shot / long form | Director (storyboard) → Motion-Context (join) → LatentUpscaler (enlarge) |
-| Fine-tuning | `IAmIronMan42/MiniMax-H3-FineTuning`; for LoRA-only with a GUI, Fizgig or Inline-Studio |
-| Apple Silicon | `antirez/h3.c` |
 
 <a id="credits"></a>
 
