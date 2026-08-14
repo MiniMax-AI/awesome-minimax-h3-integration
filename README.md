@@ -22,7 +22,7 @@ This is a short navigation guide, not a complete compatibility list.
 | Goal | Start with |
 | :--- | :--- |
 | Run it on your own GPU | [Run it locally](#models) — pick a stack from the [VRAM table](#recipes-vram) |
-| Generate or edit audio | [Audio](#audio) |
+| Work with audio | [`comfyui-minimax-h3-audio-T8`](https://github.com/T8mars/comfyui-minimax-h3-audio-T8) and the [audio VAE](#components-vae) |
 | Build in ComfyUI | [Official tutorial](https://docs.comfy.org/tutorials/video/minimax/minimax-h3) · [Workflows & nodes](#nodes) |
 | Write better prompts | [Prompting](#recipes-prompt) |
 | Make it faster | [Speed](#speed) |
@@ -363,19 +363,6 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | [`MiniMaxH3ComfyUI/MiniMax-H3-ComfyUI`](https://github.com/MiniMaxH3ComfyUI/MiniMax-H3-ComfyUI) | 101 | Runs the 33B + Turbo LoRA locally with SGLang / vLLM / diffusers as selectable backends; T2V / I2V / R2V templates included. |
 | [`unslothai/unsloth`](https://github.com/unslothai/unsloth) | 70709 | Lists MiniMax-H3 among the models it can run and train. |
 
-<a id="audio"></a>
-
-## Audio
-
-H3 generates video and stereo audio in the same pass — dialogue, ambience, and music come out already synchronized, decoded through a separate audio VAE. Practical notes:
-
-* **The audio VAE is its own file** (577 MiB FP32 — see [VAE](#components-vae)), and every generation workflow needs it loaded.
-* **Reference audio goes in through Ref2VA** — up to 3 audio clips among the 12 reference files, addressed inline as `<Audio 1>`–`<Audio 3>` (see [Prompting](#recipes-prompt)). A clean, clearly spoken clip of about 10 seconds works best.
-* **Fewer sampling steps can cost audio quality.** If audio degrades with a 4-step Turbo LoRA, try 6–8 steps (see [Turbo](#turbo)).
-* **Audio across cuts** — [`ComfyUI-H3-Motion-Context`](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) carries audio as well as motion across clip joins.
-* **Editing** — [`scraed/LanPaint`](https://github.com/scraed/LanPaint) inpaints audio as well as video, and [`ComfyUI-MiniMaxH3_LatentUpscaler`](https://github.com/Tr1dae/ComfyUI-MiniMaxH3_LatentUpscaler)'s `audio_denoise` sets how much of the existing track survives a second sampling pass: 0 keeps it, 1 remixes it, 0.25–0.5 is the light-touch range.
-* **The largest audio toolkit** is [`comfyui-minimax-h3-audio-T8`](https://github.com/T8mars/comfyui-minimax-h3-audio-T8) — four of its eight menus (Audio, Audio Experimental, Speech, Source AV) are audio-specific.
-
 <a id="nodes"></a>
 <a id="recipes"></a>
 
@@ -421,7 +408,7 @@ Community workflows:
 
 ## Prompting
 
-H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<Video X>` / `<Audio X>` reference tags, and `<d>` for dialogue. Start with the official guides, then use one prompt tool at a time.
+H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<Video X>` / `<Audio X>` reference tags, and `<d>` for dialogue. Start with the official guides, then use one prompt tool at a time. For reference audio, a clean, clearly spoken clip of about 10 seconds is picked up far more reliably than a noisy one.
 
 **Read first:** [Base prompt guide](https://github.com/MiniMax-AI/MiniMax-H3/blob/main/VIDEO_PROMPT_WRITING_GUIDE.md) · [Reference-mode prompt guide](https://github.com/MiniMax-AI/MiniMax-H3/blob/main/VIDEO_PROMPT_WRITING_GUIDE_REF.md)
 
@@ -445,7 +432,7 @@ Two levers that stack: Turbo LoRAs cut the step count from ~20 to 4–8, and cac
 
 ### Turbo (Acceleration LoRA)
 
-Turbo LoRAs are community acceleration models. Start with [`ModelTC/Minimax-H3-Turbo`](https://github.com/ModelTC/Minimax-H3-Turbo) and [`lightx2v/Minimax-h3-Turbo`](https://huggingface.co/lightx2v/Minimax-h3-Turbo), then use the workflow instructions provided by the project you choose.
+Turbo LoRAs are community acceleration models. Start with [`ModelTC/Minimax-H3-Turbo`](https://github.com/ModelTC/Minimax-H3-Turbo) and [`lightx2v/Minimax-h3-Turbo`](https://huggingface.co/lightx2v/Minimax-h3-Turbo), then use the workflow instructions provided by the project you choose. At 4 steps the audio track can degrade along with fast motion; 6–8 steps helps both.
 
 <details>
 <summary><b>Community Turbo checkpoint reference</b></summary>
@@ -522,7 +509,6 @@ The figures below come from each project's own testing.
 | [`inlineresearch/Inline-Studio`](https://github.com/inlineresearch/Inline-Studio) | 213 | Node-canvas film tool that trains H3 LoRAs on a local GPU. States **"MiniMax H3 (4-bit, video) ~20.6 GB"**. |
 | [`ModelTC/LightX2V`](https://github.com/ModelTC/LightX2V) | 2655 | The training side of Turbo distillation. The DMD config is public at `configs/minimax_h3/dmd`. |
 | [`unslothai/unsloth`](https://github.com/unslothai/unsloth) | 70709 | Lists MiniMax-H3 among the models it can run and train. Check the current Unsloth documentation for the H3 workflow that fits your setup. |
-
 
 <a id="lora"></a>
 
