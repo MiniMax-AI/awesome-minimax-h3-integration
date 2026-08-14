@@ -44,7 +44,7 @@
 * [Workflow & Technical Notes](#wf)
 * [Compatibility, Patches & Licensing](#compat)
 * [Quick Pick](#quickpick)
-* [Sources](#credits)
+* [Thanks](#credits)
 
 </details>
 
@@ -528,7 +528,7 @@ If you run H3 from a coding agent instead of the ComfyUI canvas, see: [`Minimax-
 | [`shootthesound/Fizgig`](https://github.com/shootthesound/Fizgig) | 157 | LoRA / LoKr training studio with a built-in **"✨ MiniMax H3 Fast"** preset (LoKr, 8 dim / alpha 16, 60 epochs). Also does profile / repair / extract. |
 | [`inlineresearch/Inline-Studio`](https://github.com/inlineresearch/Inline-Studio) | 213 | Node-canvas film tool that trains H3 LoRAs on a local GPU. States **"MiniMax H3 (4-bit, video) ~20.6 GB"**. |
 | [`ModelTC/LightX2V`](https://github.com/ModelTC/LightX2V) | 2655 | The training side of Turbo distillation. The DMD config is public at `configs/minimax_h3/dmd`. |
-| [`unslothai/unsloth`](https://github.com/unslothai/unsloth) | 70709 | Lists MiniMax-H3 for run-and-train. The README mentions H3 once, so verify the H3-specific path before planning around it. |
+| [`unslothai/unsloth`](https://github.com/unslothai/unsloth) | 70709 | Lists MiniMax-H3 among the models it can run and train. Check the current Unsloth documentation for the H3 workflow that fits your setup. |
 
 *Also worth knowing about:* mechanically-extracted delta adapters between the FL2VA and Ref2VA checkpoints (randomized SVD, ranks 256/512/1024) exist as a research curiosity — see [Experimental LoRA](#lora).
 
@@ -544,6 +544,7 @@ If you run H3 from a coding agent instead of the ComfyUI canvas, see: [`Minimax-
 | [`MiniMax-AI/MiniMax-H3`](https://github.com/MiniMax-AI/MiniMax-H3) | 5536 | The official repository — reference implementation and prompt guides. |
 | [`antirez/h3.c`](https://github.com/antirez/h3.c) | 1652 | Apple Silicon native Metal engine, **MIT**, tutorial in the README. T2V/A, first-last-frame, and ordered Ref2VA references all working. |
 | [`MiniMaxH3ComfyUI/MiniMax-H3-ComfyUI`](https://github.com/MiniMaxH3ComfyUI/MiniMax-H3-ComfyUI) | 101 | Runs the 33B + Turbo LoRA locally with SGLang / vLLM / diffusers as selectable backends; T2V / I2V / R2V templates included. |
+| [`unslothai/unsloth`](https://github.com/unslothai/unsloth) | 70709 | Lists MiniMax-H3 among the models it can run and train. |
 
 <a id="nodes"></a>
 
@@ -695,23 +696,22 @@ Choose the row that matches your setup:
 
 <a id="credits"></a>
 
-## Sources
+## Thanks
 
-This index combines two scans. Most of the underlying work comes from the people and projects linked here.
+This index is only possible because other people made the models, tools, tests, and documentation it points to. Thank you to the MiniMax, ComfyUI, SGLang, vLLM, NVIDIA, and Unsloth teams, and to the independent maintainers who keep testing H3 on real hardware.
 
-[`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3) is the community-curated index this page is built on top of and modelled after. Its structure, its table idiom, and roughly twenty Hugging Face uploaders our own enumeration never reached all come from there, and it remains the more complete of the two lists.
+The structure and much of the resource discovery come from the community-maintained [`wildminder/awesome-minimax-H3`](https://github.com/wildminder/awesome-minimax-H3). This page follows that work and adds MiniMax's own GitHub and Hugging Face scan.
 
-Where specific figures and findings in this page come from:
+More specific thanks go to:
 
-* [Comfy-Org](https://huggingface.co/Comfy-Org) — the official ComfyUI conversions, the workflow templates, and day-0 support.
-* [ModelTC / LightX2V](https://github.com/ModelTC/LightX2V) — the Turbo distillation line, published together with its DMD training configuration rather than the weights alone.
-* [`Larryvrh`](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo) — the per-checkpoint Turbo comparisons, including the 4-step motion-smear finding and the 6–8 step range that clears it.
-* [`Kijai`](https://github.com/kijai/ComfyUI-SolAttn_triton) — the NVIDIA Sol-Attn implementation and benchmark material quoted in the node section.
-* [`IAmIronMan42`](https://github.com/IAmIronMan42/MiniMax-H3-FineTuning) — the trainer the ecosystem was missing, and the nine fixes documented alongside it.
-* [`scottmudge`](https://github.com/scottmudge/ComfyUI_MinimaxH3HybridLoader) — the tensor-level FL2VA/Ref2VA diff that explains the quality gap between the two checkpoints.
-* Every quantizer in the tables above — the 24 GB path exists because they spent their own bandwidth building it.
+* [Comfy-Org](https://huggingface.co/Comfy-Org) for the official ComfyUI conversions, workflow templates, and day-one support.
+* [ModelTC / LightX2V](https://github.com/ModelTC/LightX2V) for the Turbo distillation work and public training configuration.
+* [`Larryvrh`](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo) for the checkpoint comparisons behind the Turbo guidance.
+* [`Kijai`](https://github.com/kijai/ComfyUI-SolAttn_triton) for the NVIDIA Sol-Attn implementation and benchmark notes.
+* [`IAmIronMan42`](https://github.com/IAmIronMan42/MiniMax-H3-FineTuning) for the training work and the documented fixes.
+* Every quantizer and workflow maintainer represented above. Their files, testing time, and write-ups make local H3 use much easier.
 
-Corrections and additions are welcome — especially a wrong number, broken link, or missing compatibility note.
+If you spot a wrong number, broken link, or missing compatibility note, please open an issue or send a correction.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [gh-MiniMaxAI]: https://img.shields.io/badge/%F0%9F%A4%97-MiniMaxAI-FFD21E?style=flat-square
