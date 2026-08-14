@@ -4,7 +4,7 @@
 
 # MiniMax H3 Integrations
 
-A community-maintained index of checkpoints, tools, and workflows for MiniMax H3 — ordered by what developers ask about most.
+A community-maintained index of checkpoints, tools, and workflows for MiniMax H3, ordered by developer interest.
 
 <a id="guides"></a>
 
@@ -17,12 +17,12 @@ A community-maintained index of checkpoints, tools, and workflows for MiniMax H3
 
 ## Start here
 
-This is a short navigation guide, not a complete compatibility list.
+This navigation guide is not a complete compatibility list.
 
 | Goal | Start with |
 | :--- | :--- |
-| Run it on your own GPU | [Run it locally](#models) — pick a stack from the [VRAM table](#recipes-vram) |
-| Work with audio | [`comfyui-minimax-h3-audio-T8`](https://github.com/T8mars/comfyui-minimax-h3-audio-T8) and the [audio VAE](#components-vae) |
+| Run on your GPU | [Run locally](#models) — pick a stack from the [VRAM table](#recipes-vram) |
+| Work with audio | [`comfyui-minimax-h3-audio-T8`](https://github.com/T8mars/comfyui-minimax-h3-audio-T8) and [audio VAE](#components-vae) |
 | Build in ComfyUI | [Official tutorial](https://docs.comfy.org/tutorials/video/minimax/minimax-h3) · [Workflows & nodes](#nodes) |
 | Write better prompts | [Prompting](#recipes-prompt) |
 | Make it faster | [Speed](#speed) |
@@ -34,30 +34,30 @@ This is a short navigation guide, not a complete compatibility list.
 
 ## Run it locally
 
-MiniMax-H3 takes text, images, video, and audio as input, then generates video with **native stereo audio**. It supports clips up to **2K** and **15 seconds**. There are two base variants:
+MiniMax-H3 generates video with **native stereo audio** from text, images, video, and audio inputs. It supports clips up to **2K** and **15 seconds**. Two base variants exist:
 
-* **H3-Base-FL2VA** (first-and-last-frame mode) — takes zero, one, or two input images. Zero images = text-to-video; one image = first- *or* last-frame-to-video; two images = first-and-last-frame-to-video.
-* **H3-Base-Ref2VA** (omni-reference mode) — takes up to **9 images, 3 video clips (2–15 s each), and 3 audio clips**, to a maximum of **12 files** total.
+* **H3-Base-FL2VA** (first-and-last-frame mode) — accepts zero, one, or two input images. Zero images for text-to-video; one image for first- *or* last-frame-to-video; two images for first-and-last-frame-to-video.
+* **H3-Base-Ref2VA** (omni-reference mode) — accepts up to **9 images, 3 video clips (2–15 s each), and 3 audio clips**, for a maximum of **12 files** total.
 
-The checkpoints are the same size. FL2VA was trained only with keyframes and usually gives better raw output. Ref2VA accepts more reference material, but its base quality is lower; the [Ref Patch](#refpatch) can bridge part of the gap.
+Checkpoints are the same size. FL2VA, trained only with keyframes, typically yields better raw output. Ref2VA accepts more reference material but has lower base quality; the [Ref Patch](#refpatch) can partially bridge this gap.
 
 <a id="recipes-vram"></a>
 
 ### By VRAM and hardware
 
-Find your GPU in the table, then use the notes to decide what to change.
+Find your GPU in the table, then use the notes to inform your configuration.
 
 | Situation | Stack | Why this combination |
 | :--- | :--- | :--- |
-| **24 GB, first run** | `pruned_int8_convrot` DiT (19.53 GiB) + TE `nvfp4_awq` (14.61 GiB) + [`ComfyUI-MiniMaxH3-Easy`](https://github.com/nkxx188/ComfyUI-MiniMaxH3-Easy) | Easy puts T2V, I2V, first/last-frame, and reference input through one `Media` port. Sampling, LoRAs, and decoding stay outside the node, so you can change them later. |
-| **24 GB, want speed** | The above + [TE-Speed-MiniMaxH3-OSS](https://github.com/HELPMEEADICE/TE-Speed-MiniMaxH3-OSS) + Turbo `v4_step600_ema` at **6–8 steps** | The maintainer reports about **45%** less work from cache reuse. It patches ComfyUI core, so keep the revert command handy. 6–8 steps reduces Turbo motion smear. |
-| **12–16 GB** | Pruned `Q4_K_M` GGUF (10.64 GiB) or pruned `nvfp4` (11.67 GiB) + TE `Q2_K` (7.91 GiB) + fp8mix VAE pair | GGUF has the most size options, which helps when memory is tight. `IQ1_S` is smaller at 3.78 GiB, but quality drops noticeably. |
-| **8 GB** | [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio) NF4 path | The project states 8 GB as its floor for this path. Offloading is doing most of the work here — expect slow, not merely small. |
-| **RTX 50-series / Blackwell** | [NVIDIA Sol-Attn](https://github.com/kijai/ComfyUI-SolAttn_triton) | **1.14–1.44×** over SageAttention with **−37 %** MLP peak VRAM, measured on a 5090. SM89–SM121, Triton 3.6.0. Also unlocks the hybrid-NVFP4 checkpoints, which are Blackwell-only. |
-| **Multi-shot / long video** | [`ComfyUI-H3-Motion-Context`](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) | H3 generates in blocks of up to 15 s. Motion-Context feeds the previous block's final frame **and** audio forward to preserve motion direction and speed. |
+| **24 GB, first run** | `pruned_int8_convrot` DiT (19.53 GiB) + TE `nvfp4_awq` (14.61 GiB) + [`ComfyUI-MiniMaxH3-Easy`](https://github.com/nkxx188/ComfyUI-MiniMaxH3-Easy) | Easy routes T2V, I2V, first/last-frame, and reference input through a single `Media` port. Sampling, LoRAs, and decoding remain outside the node for later modification. |
+| **24 GB, want speed** | The above + [TE-Speed-MiniMaxH3-OSS](https://github.com/HELPMEEADICE/TE-Speed-MiniMaxH3-OSS) + Turbo `v4_step600_ema` at **6–8 steps** | The maintainer reports about **45%** less work from cache reuse. It patches ComfyUI core, so keep the revert command handy. 6–8 steps reduce Turbo motion smear. |
+| **12–16 GB** | Pruned `Q4_K_M` GGUF (10.64 GiB) or pruned `nvfp4` (11.67 GiB) + TE `Q2_K` (7.91 GiB) + fp8mix VAE pair | GGUF offers the most size options, beneficial for tight memory. `IQ1_S` is smaller at 3.78 GiB, but quality noticeably drops. |
+| **8 GB** | [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio) NF4 path | The project states 8 GB as its minimum for this path. Offloading performs most work here; expect slow performance, not just small memory footprint. |
+| **RTX 50-series / Blackwell** | [NVIDIA Sol-Attn](https://github.com/kijai/ComfyUI-SolAttn_triton) | **1.14–1.44×** faster than SageAttention with **−37 %** MLP peak VRAM, measured on a 5090. SM89–SM121, Triton 3.6.0. Also unlocks Blackwell-only hybrid-NVFP4 checkpoints. |
+| **Multi-shot / long video** | [`ComfyUI-H3-Motion-Context`](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) | H3 generates in blocks up to 15 s. Motion-Context feeds the previous block's final frame **and** audio forward, preserving motion direction and speed. |
 | **Storyboard / timeline** | [`ComfyUI_MiniMaxH3_Director`](https://github.com/huangserva/ComfyUI_MiniMaxH3_Director) | Five importable templates: t2v, fl2v, r2v, v2v, and rv2v. |
 | **Inpaint / local edit** | [`scraed/LanPaint`](https://github.com/scraed/LanPaint) | v2.1.0 fixed H3 support. Training-free video **and** audio inpainting. |
-| **Apple Silicon** | [`antirez/h3.c`](https://github.com/antirez/h3.c) (MIT, Metal-native) | h3.c has T2V/A, first-last-frame, and ordered Ref2VA references working end to end, with M3 Max / M5 Max performance work ongoing. |
+| **Apple Silicon** | [`antirez/h3.c`](https://github.com/antirez/h3.c) (MIT, Metal-native) | h3.c supports T2V/A, first-last-frame, and ordered Ref2VA references end-to-end, with M3 Max / M5 Max performance optimization ongoing. |
 | **One-command local** | [`open-video-ai/open-video`](https://github.com/open-video-ai/open-video) | "Ollama for video models" — `install` · `pull` · `run`. |
 
 <a id="checkpoints"></a>
@@ -88,7 +88,7 @@ Find your GPU in the table, then use the notes to decide what to change.
 
 ### Quantized Models
 
-MiniMax provides the original BF16 checkpoints. The files below are community conversions and repackaged variants; they are not official MiniMax releases. Use the documentation for your runtime to confirm compatibility before downloading.
+MiniMax provides original BF16 checkpoints. The files below are community conversions and repackaged variants, not official MiniMax releases. Confirm compatibility with your runtime's documentation before downloading.
 
 <details>
 <summary><b>Community FL2VA conversions</b></summary>
@@ -211,7 +211,7 @@ GGUF files are community conversions, not part of the official MiniMax H3 releas
 | ✓ | ![Q8_0][badge-Q8_0] | 19.97 GiB | [![][gh-unsloth]](https://huggingface.co/unsloth/MiniMax-H3-GGUF/resolve/main/minimax_h3_fl2va_pruned-Q8_0.gguf) |
 | ✓ | ![Q8_0][badge-Q8_0] | 20.10 GiB | [![][gh-Abiray]](https://huggingface.co/Abiray/MiniMax-H3-Pruned-GGUF) |
 
-† `realrebelai` ships Q2_K as a **mixed-precision** build, which is why it lands *above* Q3_K_M rather than below it. If you are shopping by size, read the number, not the quant name.
+† `realrebelai` ships Q2_K as a **mixed-precision** build, placing it *above* Q3_K_M. When comparing by size, prioritize the numerical value over the quant name.
 
 </details>
 
@@ -373,51 +373,51 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | Node | ⭐ | What it does |
 | :--- | ---: | :--- |
 | [`comfyui-minimax-h3-audio-T8`](https://github.com/T8mars/comfyui-minimax-h3-audio-T8) ![Conditioning][cat-cond] | 653 | v1.17.0, **62 nodes** across eight menus: Audio (stable), Audio Experimental (multi-rate), Still, Conditioning, Models, Long Video, Speech, Source AV. Baseline ComfyUI `0.31.0`, commit `cbbc9dab1`, Python 3.10+. |
-| [`ComfyUI_MiniMaxH3_Director`](https://github.com/huangserva/ComfyUI_MiniMaxH3_Director) ![Conditioning][cat-cond] | 553 | Five importable JSON templates — t2v / fl2v / r2v / v2v / rv2v. |
-| [`ComfyUI-H3-Motion-Context`](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) ![Conditioning][cat-cond] | 491 | Chains clips so motion and sound continue across the cut: clip A's last frames plus audio go in, clip B picks up with the same motion and the same audio. **Patches at runtime only** and re-validates its assumptions against the current ComfyUI source on every start, refusing to run on a mismatch — the safest patching approach in this list. |
+| [`ComfyUI_MiniMaxH3_Director`](https://github.com/huangserva/ComfyUI_MiniMaxH3_Director) ![Conditioning][cat-cond] | 553 | Provides five importable JSON templates: t2v, fl2v, r2v, v2v, and rv2v. |
+| [`ComfyUI-H3-Motion-Context`](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) ![Conditioning][cat-cond] | 491 | Chains clips to maintain motion and sound continuity: clip A's last frames and audio inform clip B's start. **Patches at runtime only**; re-validates against current ComfyUI source on each start, refusing to run on mismatch — the safest patching approach in this list. |
 | [`ComfyUI_MiniMaxH3_Director`](https://github.com/AIMixer/ComfyUI_MiniMaxH3_Director) ![Conditioning][cat-cond] | 359 | The original Director. |
-| [`ComfyUI-MiniMaxH3-Easy`](https://github.com/nkxx188/ComfyUI-MiniMaxH3-Easy) ![Conditioning][cat-cond] | 332 | One compact workflow for T2V, I2V, first/last-frame, and reference video. Unified multi-media input with `@` references and inline dialogue blocks. |
-| [`ComfyUI-MiniMaxH3-Director`](https://github.com/seesee75-commits/ComfyUI-MiniMaxH3-Director) ![Conditioning][cat-cond] | 182 | A real timeline editor — drag media onto tracks, trim on a ruler, one prompt per shot, with live sampling preview, retakes, and shot chaining. The compiled final prompt stays visible while you edit. |
-| [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) ![Conditioning][cat-cond] | 178 | `MiniMaxRefToVideo2` supports the official reference and dialogue format. |
+| [`ComfyUI-MiniMaxH3-Easy`](https://github.com/nkxx188/ComfyUI-MiniMaxH3-Easy) ![Conditioning][cat-cond] | 332 | Provides a compact workflow for T2V, I2V, first/last-frame, and reference video. Supports unified multi-media input with `@` references and inline dialogue blocks. |
+| [`ComfyUI-MiniMaxH3-Director`](https://github.com/seesee75-commits/ComfyUI-MiniMaxH3-Director) ![Conditioning][cat-cond] | 182 | Offers a timeline editor: drag media onto tracks, trim on a ruler, assign one prompt per shot, with live sampling preview, retakes, and shot chaining. The compiled final prompt remains visible during editing. |
+| [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) ![Conditioning][cat-cond] | 178 | `MiniMaxRefToVideo2` node supports the official reference and dialogue format. |
 
 ### Upscaling, loading & repair
 
 | Node | ⭐ | What it does |
 | :--- | ---: | :--- |
-| [`scraed/LanPaint`](https://github.com/scraed/LanPaint) ![Conditioning][cat-cond] | 1331 | Training-free video **and audio** inpainting; H3 support fixed in v2.1.0. |
-| [`ComfyUI-MiniMaxH3_LatentUpscaler`](https://github.com/Tr1dae/ComfyUI-MiniMaxH3_LatentUpscaler) ![Upscaling][cat-upscale] | 191 | Latent spatial upscaler for H3's `NestedTensor` AV latents — video `[B,24,T,H/16,W/16]` + audio `[B,32,2,T_audio]` — which is why stock `LatentUpscaleBy` crashes on them. Re-noises video and audio for two-pass sampling and scales `minimax_refs` / `minimax_keyframes` conditioning. `audio_denoise`: **0** locks the existing audio, **1** fully remixes, **0.25–0.5** is the light-touch range. |
-| [`ComfyUI-INT8-Fast`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) ![Acceleration][cat-accel] | 286 | **Largely superseded** — INT8 is now native in ComfyUI. Its remaining value is `convert_comfy_quant.py`; see [Compatibility](#compat). |
+| [`scraed/LanPaint`](https://github.com/scraed/LanPaint) ![Conditioning][cat-cond] | 1331 | Performs training-free video and audio inpainting; H3 support was fixed in v2.1.0. |
+| [`ComfyUI-MiniMaxH3_LatentUpscaler`](https://github.com/Tr1dae/ComfyUI-MiniMaxH3_LatentUpscaler) ![Upscaling][cat-upscale] | 191 | Latent spatial upscaler for H3's `NestedTensor` AV latents (video `[B,24,T,H/16,W/16]` + audio `[B,32,2,T_audio]`), which stock `LatentUpscaleBy` cannot process. Re-noises video and audio for two-pass sampling and scales `minimax_refs` / `minimax_keyframes` conditioning. `audio_denoise`: **0** locks audio, **1** fully remixes, **0.25–0.5** for light remixing. |
+| [`ComfyUI-INT8-Fast`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) ![Acceleration][cat-accel] | 286 | **Largely superseded** as INT8 is now native in ComfyUI. Its remaining value is `convert_comfy_quant.py`; see [Compatibility](#compat). |
 
 <a id="wf"></a>
 <a id="wf-comfyui"></a>
 
 ### Templates & example workflows
 
-Official ComfyUI templates (these ship with ComfyUI; the links are for reading the graph without launching the app):
+Official ComfyUI templates (these ship with ComfyUI; links allow viewing the graph without launching the app):
 
 * [Text-to-Video (T2V)](https://github.com/Comfy-Org/workflow_templates/blob/main/templates/video_minimax_h3_t2v.json) · [Image-to-Video (I2V)](https://github.com/Comfy-Org/workflow_templates/blob/main/templates/video_minimax_h3_i2v.json) · [Reference-to-Video (R2V)](https://github.com/Comfy-Org/workflow_templates/blob/main/templates/video_minimax_h3_r2v.json)
 
 Community workflows:
 
-* [MiniMax-H3 FL2V GGUF workflow](https://huggingface.co/Abiray/MiniMax-H3-GGUF/resolve/main/minimax_fl2v_gguf_workflow.json) — loading and running the GGUF-quantized FL2VA model.
-* [`joeygambino/MiniMax-H3-Multishot-Workflow`](https://huggingface.co/joeygambino/MiniMax-H3-Multishot-Workflow) — several FL2VA/Ref2VA clips strung into one continuous sequence with matched audio handoffs. Apache-2.0.
-* [`javawock7618/comfy-MiniMax-H3-workflows`](https://huggingface.co/javawock7618/comfy-MiniMax-H3-workflows) — the whole low-VRAM acceleration stack in one importable bundle.
+* [MiniMax-H3 FL2V GGUF workflow](https://huggingface.co/Abiray/MiniMax-H3-GGUF/resolve/main/minimax_fl2v_gguf_workflow.json) — Loads and runs the GGUF-quantized FL2VA model.
+* [`joeygambino/MiniMax-H3-Multishot-Workflow`](https://huggingface.co/joeygambino/MiniMax-H3-Multishot-Workflow) — Strings several FL2VA/Ref2VA clips into one continuous sequence with matched audio handoffs. Apache-2.0 licensed.
+* [`javawock7618/comfy-MiniMax-H3-workflows`](https://huggingface.co/javawock7618/comfy-MiniMax-H3-workflows) — Bundles the entire low-VRAM acceleration stack into one importable workflow.
 * [OrbitQuant T2VA](https://huggingface.co/WaveCut/MiniMax-H3-OrbitQuant-W4A4/resolve/main/comfyui/workflows/MiniMax-H3-OrbitQuant-T2VA.json) · [T2VA API form](https://huggingface.co/WaveCut/MiniMax-H3-OrbitQuant-W4A4/resolve/main/comfyui/workflows/MiniMax-H3-OrbitQuant-T2VA-api.json) · [Ref2VA API form](https://huggingface.co/WaveCut/MiniMax-H3-OrbitQuant-W4A4/resolve/main/comfyui/workflows/MiniMax-H3-OrbitQuant-Ref2VA-api.json) — require [`ComfyUI-OrbitQuant`](https://github.com/WaveCut/ComfyUI-OrbitQuant).
 
 <a id="recipes-prompt"></a>
 
 ## Prompting
 
-H3 prompts have a fixed shape: a three-part structure, inline `<Picture X>` / `<Video X>` / `<Audio X>` reference tags, and `<d>` for dialogue. Start with the official guides, then use one prompt tool at a time. For reference audio, a clean, clearly spoken clip of about 10 seconds is picked up far more reliably than a noisy one.
+H3 prompts have a fixed three-part structure, inline `<Picture X>` / `<Video X>` / `<Audio X>` reference tags, and `<d>` for dialogue. Start with official guides, then use one prompt tool at a time. For reference audio, a clean, clearly spoken 10-second clip is picked up more reliably than a noisy one.
 
 **Read first:** [Base prompt guide](https://github.com/MiniMax-AI/MiniMax-H3/blob/main/VIDEO_PROMPT_WRITING_GUIDE.md) · [Reference-mode prompt guide](https://github.com/MiniMax-AI/MiniMax-H3/blob/main/VIDEO_PROMPT_WRITING_GUIDE_REF.md)
 
 | Tool | Why you'd pick it |
 | :--- | :--- |
-| [`ComfyUI-MiniMax-H3-Promptor`](https://github.com/1038lab/ComfyUI-MiniMax-H3-Promptor) | From v1.1.0 it embeds `<Picture X>` directly into the narrative action line — the author's phrase is "zero-hallucination inline annotation". Visual analysis is decoupled from text structuring, which also cuts API cost. |
-| [`ComfyUI-MiniMax-H3-Guide`](https://github.com/ethanfel/ComfyUI-MiniMax-H3-Guide) | Zero dependencies. "Typed Plan v2" splits identity / keyframes / motion / edit source / voice / score into explicit roles, compiles them into valid H3 prose, and routes to native nodes. Includes reusable image and audio reference sheets and a locked-frame Foley mode. |
-| [`comfyui-minimax-h3-prompt-enhancer-T8`](https://github.com/T8mars/comfyui-minimax-h3-prompt-enhancer-T8) | Server-side enhancement via `doubao-seed-evolving`. |
-| [`awesome-minimax-h3-prompts`](https://github.com/BeatAPI/awesome-minimax-h3-prompts) | Prompt corpus with WebM examples and author attribution, in five categories: story, action/fantasy, ad/product, music performance, vlog. |
+| [`ComfyUI-MiniMax-H3-Promptor`](https://github.com/1038lab/ComfyUI-MiniMax-H3-Promptor) | From v1.1.0, embeds `<Picture X>` directly into the narrative action line for "zero-hallucination inline annotation." Decouples visual analysis from text structuring, reducing API cost. |
+| [`ComfyUI-MiniMax-H3-Guide`](https://github.com/ethanfel/ComfyUI-MiniMax-H3-Guide) | Zero dependencies. "Typed Plan v2" splits identity, keyframes, motion, edit source, voice, and score into explicit roles, compiles them into valid H3 prose, and routes to native nodes. Includes reusable image/audio reference sheets and a locked-frame Foley mode. |
+| [`comfyui-minimax-h3-prompt-enhancer-T8`](https://github.com/T8mars/comfyui-minimax-h3-prompt-enhancer-T8) | Provides server-side prompt enhancement via `doubao-seed-evolving`. |
+| [`awesome-minimax-h3-prompts`](https://github.com/BeatAPI/awesome-minimax-h3-prompts) | A prompt corpus with WebM examples and author attribution, categorized into story, action/fantasy, ad/product, music performance, and vlog. |
 | [`minimax-h3-prompt-skill-T8`](https://github.com/T8mars/minimax-h3-prompt-skill-T8) | "Creative DNA" case library, installable as an agent skill, with an Electron desktop viewer. |
 
 If you run H3 from a coding agent instead of the ComfyUI canvas, see: [`Minimax-H3-Prompt-AgentSkill`](https://github.com/benjiyaya/Minimax-H3-Prompt-AgentSkill) · [`minimax-h3-opencode-skills`](https://github.com/unknowlei/minimax-h3-opencode-skills) (director, routing, and multi-shot planning) · [`ComfyUI-Agent-Kit`](https://github.com/SlavaSexton/ComfyUI-Agent-Kit) (shared by Claude Code, Codex, Gemini CLI, and Qwen Code) · [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) (`MiniMaxRefToVideo2`, with the official reference and dialogue format).
@@ -426,7 +426,7 @@ If you run H3 from a coding agent instead of the ComfyUI canvas, see: [`Minimax-
 
 ## Speed
 
-Two levers that stack: Turbo LoRAs cut the step count from ~20 to 4–8, and caching or kernel work makes each remaining step cheaper. Also check your PyTorch build first — an outdated CUDA build is a common cause of slow generations.
+Two levers stack: Turbo LoRAs cut step count from ~20 to 4–8, and caching or kernel work makes each step cheaper. Check your PyTorch build first; an outdated CUDA build commonly causes slow generations.
 
 <a id="turbo"></a>
 
