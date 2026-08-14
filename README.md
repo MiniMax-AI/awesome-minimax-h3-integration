@@ -25,6 +25,7 @@ This is a short navigation guide, not a complete compatibility list.
 | Use accelerated community LoRAs | [Turbo](#turbo) |
 | Serve H3 | [Deployment paths](#partners) |
 | Run on Apple Silicon | [`antirez/h3.c`](https://github.com/antirez/h3.c) |
+| Work with audio | [Audio](#audio) |
 
 <a id="partners"></a>
 
@@ -397,6 +398,19 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | :--- | :---: | :--- |
 | Ref Patch | 148 MiB | [![][gh-lihaoyun6]](https://huggingface.co/lihaoyun6/MiniMax-H3-Ref-Patch) |
 
+<a id="audio"></a>
+
+## Audio
+
+H3 generates video and stereo audio in the same pass — dialogue, ambience, and music come out already synchronized, decoded through a separate audio VAE. Practical notes:
+
+* **The audio VAE is its own file** (577 MiB FP32 — see [VAE](#components-vae)), and every generation workflow needs it loaded.
+* **Reference audio goes in through Ref2VA** — up to 3 audio clips among the 12 reference files, addressed inline as `<Audio 1>`–`<Audio 3>` (see [Prompting](#recipes-prompt)). A clean, clearly spoken clip of about 10 seconds works best.
+* **Fewer sampling steps can cost audio quality.** If audio degrades with a 4-step Turbo LoRA, try 6–8 steps (see [Turbo](#turbo)).
+* **Audio across cuts** — [`ComfyUI-H3-Motion-Context`](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) carries audio as well as motion across clip joins.
+* **Editing** — [`scraed/LanPaint`](https://github.com/scraed/LanPaint) inpaints audio as well as video, and [`ComfyUI-MiniMaxH3_LatentUpscaler`](https://github.com/Tr1dae/ComfyUI-MiniMaxH3_LatentUpscaler)'s `audio_denoise` sets how much of the existing track survives a second sampling pass: 0 keeps it, 1 remixes it, 0.25–0.5 is the light-touch range.
+* **The largest audio toolkit** is [`comfyui-minimax-h3-audio-T8`](https://github.com/T8mars/comfyui-minimax-h3-audio-T8) — four of its eight menus (Audio, Audio Experimental, Speech, Source AV) are audio-specific.
+
 <a id="lora"></a>
 
 ## LoRAs
@@ -494,7 +508,7 @@ If you run H3 from a coding agent instead of the ComfyUI canvas, see: [`Minimax-
 
 ### Acceleration
 
-The only nodes here with a **reproducible measurement table** are FirstBlockCache and sol-attn. Everything else quotes an author's own figure — useful, but not independently verified.
+The figures below come from each project's own testing.
 
 | Node | ⭐ | Mechanism & published parameters |
 | :--- | ---: | :--- |
@@ -521,9 +535,6 @@ The only nodes here with a **reproducible measurement table** are FirstBlockCach
 | [`scraed/LanPaint`](https://github.com/scraed/LanPaint) ![Conditioning][cat-cond] | 1331 | Training-free video **and audio** inpainting; H3 support fixed in v2.1.0. |
 | [`ComfyUI-MiniMaxH3_LatentUpscaler`](https://github.com/Tr1dae/ComfyUI-MiniMaxH3_LatentUpscaler) ![Upscaling][cat-upscale] | 191 | Latent spatial upscaler for H3's `NestedTensor` AV latents — video `[B,24,T,H/16,W/16]` + audio `[B,32,2,T_audio]` — which is why stock `LatentUpscaleBy` crashes on them. Re-noises video and audio for two-pass sampling and scales `minimax_refs` / `minimax_keyframes` conditioning. `audio_denoise`: **0** locks the existing audio, **1** fully remixes, **0.25–0.5** is the light-touch range. |
 | [`ComfyUI-INT8-Fast`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) ![Acceleration][cat-accel] | 286 | **Largely superseded** — INT8 is now native in ComfyUI. Its remaining value is `convert_comfy_quant.py`; see [Compatibility](#compat). |
-
-### Prompt nodes
-
 
 ### Standalone tools
 
