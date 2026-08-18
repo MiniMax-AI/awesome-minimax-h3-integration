@@ -403,7 +403,6 @@ Community workflows:
 * [`joeygambino/MiniMax-H3-Multishot-Workflow`](https://huggingface.co/joeygambino/MiniMax-H3-Multishot-Workflow) — Strings several FL2VA/Ref2VA clips into one continuous sequence with matched audio handoffs. Apache-2.0 licensed.
 * [`javawock7618/comfy-MiniMax-H3-workflows`](https://huggingface.co/javawock7618/comfy-MiniMax-H3-workflows) — Bundles the entire low-VRAM acceleration stack into one importable workflow.
 * [OrbitQuant T2VA](https://huggingface.co/WaveCut/MiniMax-H3-OrbitQuant-W4A4/resolve/main/comfyui/workflows/MiniMax-H3-OrbitQuant-T2VA.json) · [T2VA API form](https://huggingface.co/WaveCut/MiniMax-H3-OrbitQuant-W4A4/resolve/main/comfyui/workflows/MiniMax-H3-OrbitQuant-T2VA-api.json) · [Ref2VA API form](https://huggingface.co/WaveCut/MiniMax-H3-OrbitQuant-W4A4/resolve/main/comfyui/workflows/MiniMax-H3-OrbitQuant-Ref2VA-api.json) — require [`ComfyUI-OrbitQuant`](https://github.com/WaveCut/ComfyUI-OrbitQuant).
-* [`xcc3641/minimax-h3-starter`](https://github.com/xcc3641/minimax-h3-starter) — Beginner T2V and I2V ComfyUI graphs, plus the finished clips and prompt revisions they were used for. Depends on [`ComfyUI-MiniMaxH3-Easy`](https://github.com/nkxx188/ComfyUI-MiniMaxH3-Easy).
 
 <a id="recipes-prompt"></a>
 
