@@ -507,6 +507,7 @@ The figures below come from each project's own testing.
 
 | Project | ⭐ | Notes |
 | :--- | ---: | :--- |
+| [`radixark/miles_diffusion`](https://github.com/radixark/miles_diffusion) | 42 | Flow-GRPO RL post-training against reward models. The H3 [t2va recipe](https://miles.radixark.com/docs/diffusion/models/h3/h3) is verified on 2×H200. |
 | [`IAmIronMan42/MiniMax-H3-FineTuning`](https://github.com/IAmIronMan42/MiniMax-H3-FineTuning) | 487 | **The most complete trainer currently available.** Supervised rectified-flow training on top of the official Diffusers implementation, with latent caching (`prepare_cache.py`, `prepare_cache_pairs.py`) and a `FIXES.md` documenting nine fixes the author needed to make it converge. Verified scale: LoRA on **8×A800**, 2000 clips of ~30 s at 448×768, ~65k tokens per sequence, **stereo audio inside the loss**. |
 | [`shootthesound/Fizgig`](https://github.com/shootthesound/Fizgig) | 157 | LoRA / LoKr training studio with a built-in **"✨ MiniMax H3 Fast"** preset (LoKr, 8 dim / alpha 16, 60 epochs). Also does profile / repair / extract. |
 | [`inlineresearch/Inline-Studio`](https://github.com/inlineresearch/Inline-Studio) | 213 | Node-canvas film tool that trains H3 LoRAs on a local GPU. States **"MiniMax H3 (4-bit, video) ~20.6 GB"**. |
