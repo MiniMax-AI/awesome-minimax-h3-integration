@@ -423,7 +423,20 @@ H3 prompts have a fixed three-part structure, inline `<Picture X>` / `<Video X>`
 | [`awesome-minimax-h3-prompts`](https://github.com/BeatAPI/awesome-minimax-h3-prompts) | A prompt corpus with WebM examples and author attribution, categorized into story, action/fantasy, ad/product, music performance, and vlog. |
 | [`minimax-h3-prompt-skill-T8`](https://github.com/T8mars/minimax-h3-prompt-skill-T8) | "Creative DNA" case library, installable as an agent skill, with an Electron desktop viewer. |
 
-If you run H3 from a coding agent instead of the ComfyUI canvas, see: [`Minimax-H3-Prompt-AgentSkill`](https://github.com/benjiyaya/Minimax-H3-Prompt-AgentSkill) · [`minimax-h3-opencode-skills`](https://github.com/unknowlei/minimax-h3-opencode-skills) (director, routing, and multi-shot planning) · [`ComfyUI-Agent-Kit`](https://github.com/SlavaSexton/ComfyUI-Agent-Kit) (shared by Claude Code, Codex, Gemini CLI, and Qwen Code) · [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) (`MiniMaxRefToVideo2`, with the official reference and dialogue format).
+<a id="agent-skills"></a>
+
+### Agent skills
+
+Skill packages that let a coding agent drive H3 without the ComfyUI canvas. They differ in how far they take you, and are listed here from the most complete: one carries a brief through to a finished file, one drives a local ComfyUI, and the rest write the prompt and hand it back for you to run.
+
+| Skill repo | Runs against | What it does |
+| :--- | :--- | :--- |
+| [`awesome-minimax-h3`](https://github.com/joeVenner/awesome-minimax-h3) | Hosted API | Carries a brief through to a finished file against the hosted MiniMax API: submit, poll with backoff, resolve the returned `file_id`, then post-process with `ffmpeg`. Reports that the documented `/v2/…/query` polling form returns 404 and gives `GET /v1/query/video_generation` as the working call. Three `SKILL.md` packages — `minimax-video` for H3, plus Speech 2.8 and Music 3.0 skills that compose with it. Needs a `MINIMAX_API_KEY`, not local weights. MIT. |
+| [`ComfyUI-Agent-Kit`](https://github.com/SlavaSexton/ComfyUI-Agent-Kit) | Local ComfyUI | Drives a local ComfyUI end to end from Claude Code, Codex, Gemini CLI, or Qwen Code — workflow building, hardware-aware model selection, multi-shot video. Ships a standalone H3 skill among its 581 templates. Apache-2.0. |
+| [`Minimax-H3-Prompt-AgentSkill`](https://github.com/benjiyaya/Minimax-H3-Prompt-AgentSkill) | Prompt only | Builds a formatted H3 prompt from your media and idea, then hands it back for you to run. No license stated. |
+| [`minimax-h3-opencode-skills`](https://github.com/unknowlei/minimax-h3-opencode-skills) | Prompt only | OpenCode skill suite covering directing, routing, multi-shot planning, prompt generation, and review. MIT. |
+
+Also relevant: [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) (`MiniMaxRefToVideo2`, with the official reference and dialogue format), and [`minimax-h3-prompt-skill-T8`](https://github.com/T8mars/minimax-h3-prompt-skill-T8) in the table above, which ships its case library as an installable skill.
 
 <a id="speed"></a>
 
