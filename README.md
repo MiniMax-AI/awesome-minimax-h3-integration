@@ -423,6 +423,7 @@ H3 prompts have a fixed three-part structure, inline `<Picture X>` / `<Video X>`
 | [`comfyui-minimax-h3-prompt-enhancer-T8`](https://github.com/T8mars/comfyui-minimax-h3-prompt-enhancer-T8) | Provides server-side prompt enhancement via `doubao-seed-evolving`. |
 | [`awesome-minimax-h3-prompts`](https://github.com/BeatAPI/awesome-minimax-h3-prompts) | A prompt corpus with WebM examples and author attribution, categorized into story, action/fantasy, ad/product, music performance, and vlog. |
 | [`minimax-h3-prompt-skill-T8`](https://github.com/T8mars/minimax-h3-prompt-skill-T8) | "Creative DNA" case library, installable as an agent skill, with an Electron desktop viewer. |
+| [MiniMax H3 1K prompt dataset](https://github.com/yangzhou-chaofan/minimax-h3-1000-prompts) | Curated 1K text-to-video prompts with author attribution: 3-field prompt-structure anatomy, 10 hand-picked reusable prompts, and an H3 vs. peer model comparison. |
 
 <a id="agent-skills"></a>
 
