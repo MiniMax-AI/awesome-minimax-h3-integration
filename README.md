@@ -51,6 +51,7 @@ Find your GPU in the table, then use the notes to inform your configuration.
 | :--- | :--- | :--- |
 | **24 GB, first run** | `pruned_int8_convrot` DiT (19.53 GiB) + TE `nvfp4_awq` (14.61 GiB) + [`ComfyUI-MiniMaxH3-Easy`](https://github.com/nkxx188/ComfyUI-MiniMaxH3-Easy) | Easy routes T2V, I2V, first/last-frame, and reference input through a single `Media` port. Sampling, LoRAs, and decoding remain outside the node for later modification. |
 | **24 GB, want speed** | The above + [TE-Speed-MiniMaxH3](https://github.com/tl2012tl/TE-Speed-MiniMaxH3) + Turbo `v4_step600_ema` at **6–8 steps** | Block-cache acceleration; v3.2 adapts to current ComfyUI's block prefetch and no longer patches core files. 6–8 steps reduce Turbo motion smear. |
+| **22 GB, Turing (sm_75)** | [`minimax-h3-turing`](https://github.com/IvenKooLab/minimax-h3-turing) — W4A8 mixed + Turbo 4-step field handbook | 5.7 min/clip baseline; T8 BlockCache drafts −43%; PDD 8-step + T8 combo 210 s/clip. sm_75 has no FP8/BF16 tensor cores — quantization, launch flags and kernel support all differ from Ampere+ |
 | **12–16 GB** | Pruned `Q4_K_M` GGUF (10.64 GiB) or pruned `nvfp4` (11.67 GiB) + TE `Q2_K` (7.91 GiB) + fp8mix VAE pair | GGUF offers the most size options, beneficial for tight memory. `IQ1_S` is smaller at 3.78 GiB, but quality noticeably drops. |
 | **8 GB** | [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio) NF4 path | The project states 8 GB as its minimum for this path. Offloading performs most work here; expect slow performance, not just small memory footprint. |
 | **RTX 50-series / Blackwell** | [NVIDIA Sol-Attn](https://github.com/kijai/ComfyUI-SolAttn_triton) | **1.14–1.44×** faster than SageAttention with **−37 %** MLP peak VRAM, measured on a 5090. SM89–SM121, Triton 3.6.0. Also unlocks Blackwell-only hybrid-NVFP4 checkpoints. |
@@ -585,6 +586,7 @@ Some community tools modify or patch ComfyUI. Check the project's documentation 
 ### Reported environments
 
 * [`comfyui-minimax-h3-audio-T8`](https://github.com/T8mars/comfyui-minimax-h3-audio-T8): ComfyUI `0.31.0`, commit `cbbc9dab1`, Python 3.10+.
+* [`minimax-h3-turing`](https://github.com/IvenKooLab/minimax-h3-turing): RTX 2080Ti 22G (Turing sm_75), ComfyUI 0.33.1 → master 345c919, PyTorch 2.9.1+cu130; W4A8 mixed + fl2v Turbo 4-step; T8 BlockCache −43% (drafts, non-reproducible), PDD 8-step + T8 210 s/clip
 * [`ComfyUI_MiniMaxH3_Director`](https://github.com/huangserva/ComfyUI_MiniMaxH3_Director): RTX 4090 48 GB, ComfyUI 0.30.0, PyTorch 2.11.0, CUDA 12.8, Ref2VA INT8.
 
 ### Licenses
