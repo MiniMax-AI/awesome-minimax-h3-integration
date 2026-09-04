@@ -520,7 +520,7 @@ The figures below come from each project's own testing.
 
 ### Architecture
 
-Softmax attention is quadratic in sequence length and dominates H3's step time at long clips. Architecture changes reduce that cost directly. The figures below come from each project's own testing.
+Softmax attention is quadratic in sequence length and dominates H3's step time at long clips. Architecture changes reduce that cost directly.
 
 | Project | ⭐ | Mechanism & published numbers |
 | :--- | ---: | :--- |
