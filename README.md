@@ -25,7 +25,9 @@ This navigation guide is not a complete compatibility list.
 | Work with audio | [`comfyui-minimax-h3-audio-T8`](https://github.com/T8mars/comfyui-minimax-h3-audio-T8) and [audio VAE](#components-vae) |
 | Build in ComfyUI | [Official tutorial](https://docs.comfy.org/tutorials/video/minimax/minimax-h3) · [Workflows & nodes](#nodes) |
 | Write better prompts | [Prompting](#recipes-prompt) |
-| Make it faster | [Speed](#speed) |
+| Make it faster | [Speed](#speed) — [Turbo](#turbo) · [PDD](#pdd) · [FastH3](#fasth3) · [VDN](#vdn) |
+| Control pose / depth / edges | [Fun Control](#funcontrol) |
+| Use the hosted model | [Hosted H3 Max](#hosted) |
 | Fine-tune it | [Training & LoRAs](#training) |
 | Serve it as an API | [Serving H3](#partners) |
 | Run on Apple Silicon | [`antirez/h3.c`](https://github.com/antirez/h3.c) |
@@ -55,7 +57,9 @@ Find your GPU in the table, then use the notes to inform your configuration.
 | **12–16 GB** | Pruned `Q4_K_M` GGUF (10.64 GiB) or pruned `nvfp4` (11.67 GiB) + TE `Q2_K` (7.91 GiB) + fp8mix VAE pair | GGUF offers the most size options, beneficial for tight memory. `IQ1_S` is smaller at 3.78 GiB, but quality noticeably drops. |
 | **8 GB** | [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio) NF4 path | The project states 8 GB as its minimum for this path. Offloading performs most work here; expect slow performance, not just small memory footprint. |
 | **RTX 50-series / Blackwell** | [NVIDIA Sol-Attn](https://github.com/kijai/ComfyUI-SolAttn_triton) | **1.14–1.44×** faster than SageAttention with **−37 %** MLP peak VRAM, measured on a 5090. SM89–SM121, Triton 3.6.0. Also unlocks Blackwell-only hybrid-NVFP4 checkpoints. |
-| **Multi-shot / long video** | [`ComfyUI-H3-Motion-Context`](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) | H3 generates in blocks up to 15 s. Motion-Context feeds the previous block's final frame **and** audio forward, preserving motion direction and speed. |
+| **Multi-shot / long video** | [`ComfyUI-H3-Motion-Context`](https://github.com/NikoDemon80/ComfyUI-H3-Motion-Context) | H3 generates in blocks up to 15 s. Motion-Context feeds the previous block's final frame **and** audio forward, preserving motion direction and speed. [`Smite79/MiniMax-H3-LongVideos`](https://github.com/Smite79/MiniMax-H3-LongVideos) is a second approach to the same problem, outside ComfyUI. |
+| **Pose / depth / edge control** | [`alibaba-pai/MiniMax-H3-Fun-Controlnet-Union`](https://huggingface.co/alibaba-pai/MiniMax-H3-Fun-Controlnet-Union) + [`ComfyUI-H3-FunControl`](https://github.com/wyzborrero/ComfyUI-H3-FunControl) | One ~6.8 GiB control branch covers Canny, Depth, HED, MLSD, Pose and video inpainting. See [Fun Control](#funcontrol). |
+| **Fewest steps** | [PDD 8-step Acc LoRA](#pdd) or [FastH3 4-step preview](#fasth3) | Two newer alternatives to Turbo. PDD is the safer default at 8 steps; FastH3 goes to 4 with more texture loss. |
 | **Storyboard / timeline** | [`ComfyUI_MiniMaxH3_Director`](https://github.com/huangserva/ComfyUI_MiniMaxH3_Director) | Five importable templates: t2v, fl2v, r2v, v2v, and rv2v. |
 | **Inpaint / local edit** | [`scraed/LanPaint`](https://github.com/scraed/LanPaint) | v2.1.0 fixed H3 support. Training-free video **and** audio inpainting. |
 | **Apple Silicon** | [`antirez/h3.c`](https://github.com/antirez/h3.c) (MIT, Metal-native) | h3.c supports T2V/A, first-last-frame, and ordered Ref2VA references end-to-end, with M3 Max / M5 Max performance optimization ongoing. |
@@ -175,6 +179,21 @@ MiniMax provides original BF16 checkpoints. The files below are community conver
 
 </details>
 
+<details>
+<summary><b>Quants of the accelerated variants (VDN · PDD · FastH3)</b></summary>
+
+These are quantized copies of the [VDN](#vdn), [PDD](#pdd) and [FastH3](#fasth3) models rather than of the base checkpoints. Match the quant to the runtime the parent model expects.
+
+| Parent | Precision | Method | Download |
+| :--- | :---: | :--- | :--- |
+| VDN | ![int8][badge-int8] | ConvRot, ComfyUI layout | [![][gh-drbaph]](https://huggingface.co/drbaph/vdn-minimax-h3-int8-convrot-comfyui) |
+| VDN | ![int8][badge-int8] | ConvRot, T8 repack | [![][gh-t8star]](https://huggingface.co/t8star/Vdn-Minimax-H3-Comfy) |
+| PDD 8-step | ![nvfp4][badge-nvfp4] | SVDQuant FP4 | [![][gh-1ronman1993]](https://huggingface.co/1ronman1993/MiniMax-H3-SVDQuant-fp4-pdd8) |
+| PDD 8-step | ![int4][badge-int4] | SVDQuant INT4 | [![][gh-1ronman1993]](https://huggingface.co/1ronman1993/MiniMax-H3-SVDQuant-int4-pdd8) |
+| FastH3 4-step | GGUF | Community conversion | [![][gh-realrebelai]](https://huggingface.co/realrebelai/FastH3_GGUFs) |
+
+</details>
+
 <a id="gguf"></a>
 
 #### GGUF Quantized Models
@@ -263,6 +282,7 @@ The fine-tunes themselves are third-party and are not itemised here; browse [`Dm
 * **`Winnougan/MiniMax-H3-INT4_Convrot_ComfyUI`** ships a matching quantized text encoder: [`qwen3vl_32b_minimax_h3-w4a8_convrot.safetensors`](https://huggingface.co/Winnougan/MiniMax-H3-INT4_Convrot_ComfyUI/resolve/main/qwen3vl_32b_minimax_h3-w4a8_convrot.safetensors).
 * **`unsloth/MiniMax-H3-GGUF`** also carries Qwen3-VL text-encoder GGUFs: `Q2_K_M` 12.2 GiB and `Q4_K_M` 17.0 GiB.
 * **`DmitryDB/MiniMax-H3-ComfyUI-Quants`** also carries VAE files: video VAE FP16 4.85 GiB, audio VAE FP32 577 MiB.
+* **VDN and PDD quants are not interchangeable with base quants.** A VDN INT8 file expects the VDN adapters loaded; a SVDQuant PDD build already has the 8-step LoRA folded in, so stacking another acceleration LoRA on top will over-distill the result.
 * **`DiffSynth-Studio/MiniMax-H3-NF4`** bundles NF4 TE + video VAE + audio VAE. Requires [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio); the project states a **minimum of 8 GB VRAM** on this path.
 * **`WaveCut/MiniMax-H3-OrbitQuant-W4A4`** bundles a quantized TE and FP32 VAE copies, and requires the [`ComfyUI-OrbitQuant`](https://github.com/iamwavecut/ComfyUI-OrbitQuant/tree/feature/minimax-h3-comfyui) node — the W4A4 path is not loadable without it. [Workflow JSON](https://huggingface.co/WaveCut/MiniMax-H3-OrbitQuant-W4A4/resolve/main/comfyui/workflows/MiniMax-H3-OrbitQuant-T2VA.json).
 
@@ -350,6 +370,22 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | :--- | :---: | :--- |
 | Ref Patch | 148 MiB | [![][gh-lihaoyun6]](https://huggingface.co/lihaoyun6/MiniMax-H3-Ref-Patch) |
 
+<a id="funcontrol"></a>
+
+#### Fun Control — Canny / Depth / HED / MLSD / Pose + inpainting
+
+[`alibaba-pai/MiniMax-H3-Fun-Controlnet-Union`](https://huggingface.co/alibaba-pai/MiniMax-H3-Fun-Controlnet-Union) adds structural control to H3 without retraining the base model. It is a **single ~6.8 GiB control branch** — one `control_proj_in` plus five `control_blocks` grafted onto layers 0, 10, 20, 30 and 40 of the DiT's 50 — and one checkpoint covers every control type rather than one file per modality.
+
+| | |
+| :--- | :--- |
+| Control types | Canny · Depth · HED · MLSD · Pose, plus video inpainting and outpainting |
+| Control input | `control_in_dim = 49` — the control video and the inpaint mask enter through the same projection |
+| Strength | `control_context_scale` from **0** (ignore) to **1** (follow closely) |
+| Guidance | **Guidance-distilled**: run at `guidance_scale = 1.0`. Raising CFG does not help and costs a second forward pass. |
+| Frame count | Snaps to `17*n + 5`, up to 15 s at 24 fps |
+| Upstream | [`aigc-apps/VideoX-Fun`](https://github.com/aigc-apps/VideoX-Fun) (★2244, Apache-2.0) — the training and inference code |
+| ComfyUI | [`wyzborrero/ComfyUI-H3-FunControl`](https://github.com/wyzborrero/ComfyUI-H3-FunControl) (★34, Apache-2.0). Core ComfyUI support is open as draft PR [#15860](https://github.com/comfyanonymous/ComfyUI/pull/15860). |
+
 <a id="engines"></a>
 
 ### Runtimes
@@ -359,7 +395,8 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | [`ComfyUI`](https://github.com/comfyanonymous/ComfyUI) | 127159 | Native, day-0. INT8 is now in mainline (commit `1a510f04`) — see [Compatibility](#compat) before reusing older INT8 quants. |
 | [`modelscope/DiffSynth-Studio`](https://github.com/modelscope/DiffSynth-Studio) | 12925 | `MiniMaxH3Pipeline` in `diffsynth.pipelines.minimax_h3_audio_video`; docs at `docs/en/Model_Details/MiniMax-H3.md`, examples at `examples/minimax_h3/`. Ships **NF4** quantized inference with an **8 GB VRAM** floor. |
 | [`ModelTC/LightX2V`](https://github.com/ModelTC/LightX2V) | 2655 | Full inference support: parallelism, quantized DiT, feature caching. Scripts at `scripts/minimax_h3`. Also the home of the Turbo 4-step / 768p LoRAs. |
-| [`NVlabs/Sana` Sol-Engine](https://github.com/NVlabs/Sana/tree/sol-engine/models/minimax_h3) | 8812 | Hardware-specific full-stack runtimes (kernel optimization, Sol-Attn, approximate caching, memory-efficient decoding) on the `sol-engine` branch, **Apache-2.0**. Released full-opt configs for GB200, GB10, H100, A100, RTX 4090 and RTX 5090 with **3.55–4.52x** speedup vs the matching baseline on the same hardware (e.g. 4.44x on a single RTX 4090, 768p@5s); launch via `scripts/launch_config.py`, local or Slurm. |
+| [`NVlabs/Sana` Sol-Engine](https://github.com/NVlabs/Sana/tree/sol-engine/models/minimax_h3) | 8812 | Hardware-specific full-stack runtimes (kernel optimization, Sol-Attn, approximate caching, memory-efficient decoding) on the `sol-engine` branch, **Apache-2.0**. Released full-opt configs for GB200, GB10, H100, A100, RTX 4090 and RTX 5090 with **3.55–4.52x** speedup vs the matching baseline on the same hardware (e.g. 4.44x on a single RTX 4090, 768p@5s); launch via `scripts/launch_config.py`, local or Slurm. The branch now also ships **Sol-H3**, a standalone datacentre runtime — see [Sol-H3](#solh3). |
+| [`OpenVDN/vdn-minimax-h3`](https://github.com/OpenVDN/vdn-minimax-h3) | 397 | **Video Delta Net** — a hybrid-attention rebuild of H3 that runs a frame-wise linear-attention branch alongside the softmax branch, shipped as plug-and-play LoRA adapters merged at inference. Apache-2.0, with training *and* inference code open, not just weights. See [VDN](#vdn). |
 | [`MiniMax-AI/MiniMax-H3`](https://github.com/MiniMax-AI/MiniMax-H3) | 5536 | The official repository — reference implementation and prompt guides. |
 | [`antirez/h3.c`](https://github.com/antirez/h3.c) | 1652 | Apple Silicon native Metal engine, **MIT**, tutorial in the README. T2V/A, first-last-frame, and ordered Ref2VA references all working. |
 | [`MiniMaxH3ComfyUI/MiniMax-H3-ComfyUI`](https://github.com/MiniMaxH3ComfyUI/MiniMax-H3-ComfyUI) | 101 | Runs the 33B + Turbo LoRA locally with SGLang / vLLM / diffusers as selectable backends; T2V / I2V / R2V templates included. |
@@ -381,6 +418,7 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | [`ComfyUI-MiniMaxH3-Easy`](https://github.com/nkxx188/ComfyUI-MiniMaxH3-Easy) ![Conditioning][cat-cond] | 332 | Provides a compact workflow for T2V, I2V, first/last-frame, and reference video. Supports unified multi-media input with `@` references and inline dialogue blocks. |
 | [`ComfyUI-MiniMaxH3-Director`](https://github.com/seesee75-commits/ComfyUI-MiniMaxH3-Director) ![Conditioning][cat-cond] | 182 | Offers a timeline editor: drag media onto tracks, trim on a ruler, assign one prompt per shot, with live sampling preview, retakes, and shot chaining. The compiled final prompt remains visible during editing. |
 | [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI-PainterNodes) ![Conditioning][cat-cond] | 178 | `MiniMaxRefToVideo2` node supports the official reference and dialogue format. |
+| [`ComfyUI-H3-FunControl`](https://github.com/wyzborrero/ComfyUI-H3-FunControl) ![Conditioning][cat-cond] | 34 | Loads [`MiniMax-H3-Fun-Controlnet-Union`](#funcontrol) and exposes `control_context_scale` plus the Canny / Depth / HED / MLSD / Pose preprocessors and the inpaint mask path. Apache-2.0. Core ComfyUI support is still a draft PR, so this is the working route today. |
 | [`OpenH3-IR`](https://github.com/ruashots/open-h3-ir) ![Conditioning][cat-cond] | 19 | The ComfyUI side of OpenH3-IR (see [Prompting](#recipes-prompt)), using its Context-IR service from the same repo, on a model you already run. Drop your pictures, clips and sounds on one panel, name them, then mention them by name in the sentence. The nodes and the service are one tool listed twice, not two projects. |
 
 ### Upscaling, loading & repair
@@ -390,6 +428,7 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | [`scraed/LanPaint`](https://github.com/scraed/LanPaint) ![Conditioning][cat-cond] | 1331 | Performs training-free video and audio inpainting; H3 support was fixed in v2.1.0. |
 | [`ComfyUI-MiniMaxH3_LatentUpscaler`](https://github.com/Tr1dae/ComfyUI-MiniMaxH3_LatentUpscaler) ![Upscaling][cat-upscale] | 191 | Latent spatial upscaler for H3's `NestedTensor` AV latents (video `[B,24,T,H/16,W/16]` + audio `[B,32,2,T_audio]`), which stock `LatentUpscaleBy` cannot process. Re-noises video and audio for two-pass sampling and scales `minimax_refs` / `minimax_keyframes` conditioning. `audio_denoise`: **0** locks audio, **1** fully remixes, **0.25–0.5** for light remixing. |
 | [`Comfyui_Minimax_h3_latent_Upscaler`](https://github.com/LBH-123-AI/Comfyui_Minimax_h3_latent_Upscaler) ![Upscaling][cat-upscale] | 151 | **Learned** neural upscaler for H3's 24-channel latents — generate at low resolution, upscale the latent in place, then refine at target resolution, skipping the `decode → pixel upscale → encode` round-trip through the ~5B VAE and the ghosting that naive latent interpolation introduces. Continuous **1.0–4.0×** scale. [Checkpoints on HF](https://huggingface.co/LBH-123-AI/Minimax_h3_latent_Upscaler) (bf16/fp16 ~691 MB, fp32 ~1.38 GB, Apache-2.0) with I2V and R2V example workflows; trained on ~80k paired samples. |
+| [`ComfyUI-H3VAE_TRT`](https://github.com/lihaoyun6/ComfyUI-H3VAE_TRT) ![Acceleration][cat-accel] | 212 | ONNX / TensorRT replacement for H3's ~5B video VAE — the decode stage, not the DiT. The author reports **up to 1.7×** on VAE decode. Apache-2.0, released 2026-09-01. Engines are built per GPU on first run. |
 | [`ComfyUI-INT8-Fast`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) ![Acceleration][cat-accel] | 286 | **Largely superseded** as INT8 is now native in ComfyUI. Its remaining value is `convert_comfy_quant.py`; see [Compatibility](#compat). |
 
 <a id="wf"></a>
@@ -445,7 +484,18 @@ Also relevant: [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI
 
 ## Speed
 
-Two levers stack: Turbo LoRAs cut step count from ~20 to 4–8, and caching or kernel work makes each step cheaper. Check your PyTorch build first; an outdated CUDA build commonly causes slow generations.
+Two levers stack: **fewer steps** and **cheaper steps**. Check your PyTorch build first; an outdated CUDA build commonly causes slow generations.
+
+Four step-reduction families now exist, and they are alternatives to each other, not a stack — load one, not several.
+
+| Family | Steps | Comes from | Pick it when |
+| :--- | :---: | :--- | :--- |
+| [Turbo](#turbo) | 4–8 | LightX2V DMD distillation, plus community re-bakes | You want the most tested option with the widest checkpoint choice. |
+| [PDD](#pdd) | 8 | Alibaba PAI, on NVIDIA's Parallel Decoding Distillation | You want a single official-ish 8-step LoRA per variant and native ComfyUI loading. |
+| [FastH3](#fasth3) | 4 | FastVideo, video sparse attention + data-free distillation | You want the fastest preview pass and can accept visible texture loss. |
+| [VDN](#vdn) | 8 or 50 | OpenVDN, hybrid linear/softmax attention | You want an architectural speedup rather than a step-count trick, and have the disk for it. |
+
+Field note from the 2080Ti and 4090 threads: PDD at 4 NFE visibly flattens painted-illustration texture where Turbo `v4-600-ema` still holds it. At the LoRA's intended 8 steps the gap mostly closes.
 
 <a id="turbo"></a>
 
@@ -505,6 +555,87 @@ Turbo LoRAs are community acceleration models. Start with [`ModelTC/Minimax-H3-T
 
 </details>
 
+<a id="pdd"></a>
+
+### PDD (Parallel Decoding Distillation)
+
+PDD comes from NVIDIA — [arXiv 2607.26004](https://arxiv.org/abs/2607.26004), published 2026-07-28 — and was applied to H3 by Alibaba PAI as a pair of 8-step acceleration LoRAs.
+
+[`alibaba-pai/MiniMax-H3-Acc-LoRAs`](https://huggingface.co/alibaba-pai/MiniMax-H3-Acc-LoRAs) ships one file per base variant:
+
+| File | For | Rank / alpha | Precision |
+| :--- | :--- | :---: | :---: |
+| `MiniMax-H3-FL2VA-Acc-8Step.safetensors` | H3-Base-FL2VA | 64 / 64 | ![bf16][badge-bf16] |
+| `MiniMax-H3-Ref2VA-Acc-8Step.safetensors` | H3-Base-Ref2VA | 64 / 64 | ![bf16][badge-bf16] |
+
+Released under the MiniMax-H3 Community License, trained and served through [`aigc-apps/VideoX-Fun`](https://github.com/aigc-apps/VideoX-Fun) — the same project behind [Fun Control](#funcontrol).
+
+**Loading it.** The LoRA is not a single flat adapter: it is a backbone LoRA plus **32 output heads**, so a loader that expects one weight set will silently drop most of it. Current ComfyUI handles this natively through its LoRA-bank support. Otherwise use a repacked copy:
+
+| Conversion | Downloads | Note |
+| :--- | ---: | :--- |
+| [![][gh-aptech0081]](https://huggingface.co/aptech0081/MiniMax-H3-Acc-LoRAs-ComfyUI) `MiniMax-H3-Acc-LoRAs-ComfyUI` | 31.6k | Straight ComfyUI key remap. |
+| [![][gh-t8star]](https://huggingface.co/t8star/Minimax-H3-Super-Acceleration-Comfy) `Minimax-H3-Super-Acceleration-Comfy` | 23.1k | T8's repack, aligned with the T8 audio node set. |
+
+ComfyUI node: [`Jalen-Brunson/ComfyUI-MiniMax-H3-PDD-Acc`](https://github.com/Jalen-Brunson/ComfyUI-MiniMax-H3-PDD-Acc) (★94, Apache-2.0) — use it if your ComfyUI predates LoRA-bank support.
+
+<a id="fasth3"></a>
+
+### FastH3 (4-step preview)
+
+FastVideo's 4-step line, built on **video sparse attention (VSA)** rather than on step distillation alone. Treat it as a preview / iteration pass: it is the fastest option here and the one that loses the most texture.
+
+| Model | Downloads | Note |
+| :--- | ---: | :--- |
+| [![][gh-FastVideo]](https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-VSA-DataFree) `FastH3-4-step-Preview-v1-VSA-DataFree` | 109.5k | Full weights. Data-free distillation, so no dataset licence question follows it. |
+| [![][gh-FastVideo]](https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-LoRA) `FastH3-4-step-Preview-v1-LoRA` | 20.9k | LoRA form, for stacking on a quant you already hold. |
+| [![][gh-realrebelai]](https://huggingface.co/realrebelai/FastH3_GGUFs) `FastH3_GGUFs` | — | GGUF conversions for the low-VRAM path. |
+
+FastVideo also publishes MLX INT8 and INT4 builds for Apple Silicon; check the [FastVideo org page](https://huggingface.co/FastVideo) for the current set. [`NikoDemon80/ComfyUI-FastH3-Lora-Converter`](https://github.com/NikoDemon80/ComfyUI-FastH3-Lora-Converter) (★7) converts the LoRA into ComfyUI key order.
+
+<a id="vdn"></a>
+
+### VDN (Video Delta Net)
+
+[`OpenVDN/vdn-minimax-h3`](https://github.com/OpenVDN/vdn-minimax-h3) (★397, Apache-2.0) is the one entry here that changes the architecture instead of the schedule. It runs a **frame-wise linear-attention branch alongside the softmax branch**, and ships the change as plug-and-play LoRA adapters that are merged at inference. Released 2026-09-06; write-up at [openvdn.github.io](https://openvdn.github.io). Weights on Hugging Face at [`OpenVDN/vdn-minimax-h3`](https://huggingface.co/OpenVDN/vdn-minimax-h3).
+
+Both the training and the inference code are open, which is unusual in this list — most acceleration work publishes weights only.
+
+**Size.** The repo is roughly **82 GiB** in total. You do not need all of it:
+
+| Directory | Size | What it is |
+| :--- | :---: | :--- |
+| `h3-base/` | 72 GiB | The rebuilt base. Only needed if you are training or evaluating from scratch. |
+| `stage-b-step-2000/` | 4.3 GiB | 50-step adapter — the quality tier. |
+| `stage-dmd-step-250/` | 5.1 GiB | 8-step DMD adapter — the speed tier. |
+
+Published figure: a **14.4 s clip in 11.23 s** at 8 steps on 8×B200 — faster than real time on that hardware.
+
+| ComfyUI node | ⭐ | Note |
+| :--- | ---: | :--- |
+| [`Saganaki22/ComfyUI-VDN-H3`](https://github.com/Saganaki22/ComfyUI-VDN-H3) | 202 | The main node. Apache-2.0. Author reports **17 s/it** at 1280×736 / 145 frames on an RTX 5090. |
+| [`Speach1sdef178/ComfyUI-VDN-H3-24GB`](https://github.com/Speach1sdef178/ComfyUI-VDN-H3-24GB) | 4 | 24 GB-targeted fork with heavier offload. |
+
+**The competing claim.** [`Kablex/ComfyUI-Ref2VA-VSA`](https://github.com/Kablex/ComfyUI-Ref2VA-VSA) (★111) applies video sparse attention to Ref2VA instead, and its author measures it at **2.24× faster than VDN-H3** — about **72 s per 5 s clip on an RTX 4090** in roughly **13.5 GiB**. Both sets of numbers come from the projects themselves, on different hardware; neither has been reproduced independently here.
+
+INT8 conversions of VDN for ComfyUI are listed under [Quantized models](#quants).
+
+<a id="solh3"></a>
+
+### Sol-H3 (datacentre)
+
+The `sol-engine` branch of [`NVlabs/Sana`](https://github.com/NVlabs/Sana/tree/sol-engine/models/minimax_h3) now also ships **Sol-H3**, a standalone runtime rather than a per-GPU config. It is 4-step distilled, scales with Ulysses sequence parallelism to 8 GPUs, and uses SOL/BSA sparse attention.
+
+Published medians on **8×B300** at 1344×768 / 24 fps with stereo audio, warm, excluding load, warmup and encode:
+
+| Frames | ≈ Duration | T2VA | Ref2VA |
+| ---: | ---: | ---: | ---: |
+| 124 | 5 s | 1.653 s | 2.192 s |
+| 243 | 10 s | 3.732 s | 4.348 s |
+| 362 | 15 s | 6.612 s | 5.947 s |
+
+ComfyUI wrapper: [`xmarre/ComfyUI-Sol-H3`](https://github.com/xmarre/ComfyUI-Sol-H3) (★21, **GPL-3.0** — note the licence differs from the rest of this list).
+
 ### Acceleration nodes
 
 The figures below come from each project's own testing.
@@ -513,6 +644,10 @@ The figures below come from each project's own testing.
 | :--- | ---: | :--- |
 | [`ComfyUI-Spectrum-MiniMax-H3`](https://github.com/xmarre/ComfyUI-Spectrum-MiniMax-H3) ![Acceleration][cat-accel] | 493 | Spectral feature forecasting — fits post-transformer features with **Chebyshev ridge regression** and extrapolates future steps, skipping selected transformer evaluations. Adaptive scheduling with native fallbacks. The author is explicit that this is an approximation: **output is not bit-identical to native.** |
 | [`ComfyUI-SolAttn_triton`](https://github.com/kijai/ComfyUI-SolAttn_triton) ![Acceleration][cat-accel] | 266 | SolAttention Triton kernel — optimized attention for H3 and other Sol-Attn models. |
+| [`ComfyUI-VDN-H3`](https://github.com/Saganaki22/ComfyUI-VDN-H3) ![Acceleration][cat-accel] | 202 | Runs the [VDN](#vdn) hybrid-attention adapters. Apache-2.0. **17 s/it** at 1280×736 / 145 frames on an RTX 5090, per the author. |
+| [`ComfyUI-Ref2VA-VSA`](https://github.com/Kablex/ComfyUI-Ref2VA-VSA) ![Acceleration][cat-accel] | 111 | Video sparse attention for Ref2VA. Author measures **2.24× faster than VDN-H3**, ~72 s per 5 s clip on an RTX 4090 in ~13.5 GiB. |
+| [`ComfyUI-MiniMax-H3-PDD-Acc`](https://github.com/Jalen-Brunson/ComfyUI-MiniMax-H3-PDD-Acc) ![Acceleration][cat-accel] | 94 | Loads the [PDD](#pdd) 8-step Acc LoRA including its 32 output heads. Apache-2.0. Redundant on a ComfyUI new enough to have LoRA-bank support. |
+| [`ComfyUI-Sol-H3`](https://github.com/xmarre/ComfyUI-Sol-H3) ![Acceleration][cat-accel] | 21 | ComfyUI front end for the [Sol-H3](#solh3) runtime. ⚠️ **GPL-3.0**. |
 | [`TE-Speed-MiniMaxH3`](https://github.com/tl2012tl/TE-Speed-MiniMaxH3) ![Acceleration][cat-accel] | 2 | Block-cache accelerator, by the original TE-Speed author. v3.2 targets current ComfyUI (block prefetch, no core patch), adds a 4/8-step LoRA mode with automatic strategy selection by step count, a long-video (>10 s) cache strategy, and chunked CPU residual transfer; bundles a TE-Speed-compatible fork of the Sol-Attn node. ⚠️ Ships a compiled `nodes.pyd`, no license stated. |
 
 <a id="training"></a>
@@ -566,6 +701,20 @@ These projects are the main open-source options for serving H3 outside a ComfyUI
 | [EzgiTastan/minimax-h3-gb300-ebpf](https://github.com/EzgiTastan/minimax-h3-gb300-ebpf) | Reproducible GB300 benchmarking and observability companion for SGLang H3 serving: end-to-end stage timing, Ulysses scaling, concurrency, host-side eBPF CUDA tracing, Grace–GPU PMU traffic, energy, and Nsight comparison. Includes retained measurements, figure renderers, and the [full methodology and results](https://ezgitastan.systems/blog/minimax-h3-sglang-gb300-ebpf/). |
 | [vLLM](https://github.com/vllm-project/vllm) | The underlying engine vLLM-Omni extends — vLLM alone serves autoregressive models, not H3's DiT. Deploy H3 through vLLM-Omni; keep plain vLLM for the text-model side of your stack (e.g. a prompt-rewriter endpoint). |
 
+<a id="hosted"></a>
+
+### Hosted — the H3 Max family
+
+> ⚠️ **Closed weights.** Everything else on this page is something you can download. The H3 Max models are not — they are hosted only, post-trained by [fal](https://fal.ai), and reachable through an API. No quant, LoRA or acceleration node listed here will load against them.
+
+| Model | What it is |
+| :--- | :--- |
+| **H3 Max** | The hosted flagship. Post-trained on top of H3 by fal. |
+| **H3 Max Director** | The interactive variant — a session you hold open while it generates, rather than a single request that returns a finished clip. |
+| **H3 Max Turbo** | The speed tier of the hosted line. 1080p variants are also exposed. |
+
+Access is through [fal](https://fal.ai) and through the ComfyUI **Partner Nodes**, which call the hosted API from inside a normal ComfyUI graph. Announcements come from [@Hailuo_AI](https://x.com/Hailuo_AI) and [@ComfyUI](https://x.com/ComfyUI).
+
 <a id="compat"></a>
 
 ## Compatibility & Licensing
@@ -588,13 +737,21 @@ Some community tools modify or patch ComfyUI. Check the project's documentation 
 * [`comfyui-minimax-h3-audio-T8`](https://github.com/T8mars/comfyui-minimax-h3-audio-T8): ComfyUI `0.31.0`, commit `cbbc9dab1`, Python 3.10+.
 * [`minimax-h3-turing`](https://github.com/IvenKooLab/minimax-h3-turing): RTX 2080Ti 22G (Turing sm_75), ComfyUI 0.33.1 → master 345c919, PyTorch 2.9.1+cu130; W4A8 mixed + fl2v Turbo 4-step; T8 BlockCache −43% (drafts, non-reproducible), PDD 8-step + T8 210 s/clip
 * [`ComfyUI_MiniMaxH3_Director`](https://github.com/huangserva/ComfyUI_MiniMaxH3_Director): RTX 4090 48 GB, ComfyUI 0.30.0, PyTorch 2.11.0, CUDA 12.8, Ref2VA INT8.
+* [`ComfyUI-VDN-H3`](https://github.com/Saganaki22/ComfyUI-VDN-H3): RTX 5090, 1280×736, 145 frames, 17 s/it.
+* [`ComfyUI-Ref2VA-VSA`](https://github.com/Kablex/ComfyUI-Ref2VA-VSA): RTX 4090, ~72 s per 5 s clip, ~13.5 GiB.
+* [Sol-H3](#solh3): 8×B300, 1344×768 @ 24 fps with stereo audio, warm medians excluding load / warmup / encode.
+* [VDN](#vdn): 8×B200, 14.4 s clip generated in 11.23 s at 8 steps.
+* [`matsuo-koya/minimax-h3-notes`](https://github.com/matsuo-koya/minimax-h3-notes) (★24, MIT) collects further single-machine run notes.
 
 ### Licenses
 
 | License | Where |
 | :--- | :--- |
-| Apache-2.0 | `ModelTC/Minimax-H3-Turbo` and the Turbo LoRA line · Ref Patch |
-| MIT | `antirez/h3.c` |
+| Apache-2.0 | `ModelTC/Minimax-H3-Turbo` and the Turbo LoRA line · Ref Patch · `OpenVDN/vdn-minimax-h3` · `aigc-apps/VideoX-Fun` · `Saganaki22/ComfyUI-VDN-H3` · `Jalen-Brunson/ComfyUI-MiniMax-H3-PDD-Acc` · `wyzborrero/ComfyUI-H3-FunControl` · `lihaoyun6/ComfyUI-H3VAE_TRT` · `NVlabs/Sana` sol-engine |
+| MIT | `antirez/h3.c` · `matsuo-koya/minimax-h3-notes` |
+| GPL-3.0 | `xmarre/ComfyUI-Sol-H3` — copyleft, unlike the rest of this list |
+| MiniMax-H3 Community | `alibaba-pai/MiniMax-H3-Acc-LoRAs` · `alibaba-pai/MiniMax-H3-Fun-Controlnet-Union` · RAVEN Streaming · Krea2 Style |
+| Closed / hosted only | The [H3 Max family](#hosted) — no weights are distributed |
 | No license stated | `DeepBeepMeep/MiniMax-H3` |
 
 For other projects, check the repository or model card.
@@ -613,6 +770,9 @@ More specific thanks go to:
 * [ModelTC / LightX2V](https://github.com/ModelTC/LightX2V) for the Turbo distillation work and public training configuration.
 * [`Larryvrh`](https://github.com/Larryvrh/ComfyUI-MiniMax-H3-Turbo) for the checkpoint comparisons behind the Turbo guidance.
 * [`Kijai`](https://github.com/kijai/ComfyUI-SolAttn_triton) for the NVIDIA Sol-Attn implementation and benchmark notes.
+* [Alibaba PAI](https://huggingface.co/alibaba-pai) and [`aigc-apps/VideoX-Fun`](https://github.com/aigc-apps/VideoX-Fun) for the PDD 8-step Acc LoRAs and the Fun ControlNet-Union branch.
+* [OpenVDN](https://github.com/OpenVDN/vdn-minimax-h3) for publishing Video Delta Net's training code alongside the weights.
+* [FastVideo](https://huggingface.co/FastVideo) for the FastH3 4-step preview line and its data-free distillation recipe.
 * [`IAmIronMan42`](https://github.com/IAmIronMan42/MiniMax-H3-FineTuning) for the training work and the documented fixes.
 * [Salvatore Sanfilippo (antirez)](https://github.com/antirez) for the standalone H3 C/Metal inference engine.
 * Every quantizer and workflow maintainer represented above. Their files, testing time, and write-ups make local H3 use much easier.
@@ -664,6 +824,9 @@ For MiniMax H3 questions, contact [model@minimax.io](mailto:model@minimax.io).
 [gh-matlod]: https://img.shields.io/badge/%F0%9F%A4%97-matlod-FFD21E?style=flat-square
 [gh-Inner--Reflections]: https://img.shields.io/badge/%F0%9F%A4%97-Inner--Reflections-FFD21E?style=flat-square
 [gh-bghira]: https://img.shields.io/badge/%F0%9F%A4%97-bghira-FFD21E?style=flat-square
+[gh-FastVideo]: https://img.shields.io/badge/%F0%9F%A4%97-FastVideo-FFD21E?style=flat-square
+[gh-aptech0081]: https://img.shields.io/badge/%F0%9F%A4%97-aptech0081-FFD21E?style=flat-square
+[gh-1ronman1993]: https://img.shields.io/badge/%F0%9F%A4%97-1ronman1993-FFD21E?style=flat-square
 
 [badge-bf16]: https://img.shields.io/badge/bf16-0077cc?style=flat-square
 [badge-fp16]: https://img.shields.io/badge/fp16-0077cc?style=flat-square
