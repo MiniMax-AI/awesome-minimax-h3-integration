@@ -496,6 +496,8 @@ Four acceleration families now exist, and they are alternatives to each other, n
 | [FastH3](#fasth3) | 4 | FastVideo, video sparse attention + data-free distillation | You want the fastest preview pass and can accept visible texture loss. |
 | [VDN](#vdn) | 8 or 50 | OpenVDN, hybrid linear/softmax attention | You want an architectural speedup rather than a step-count trick, and have the disk for it. |
 
+Attention-level work sits outside that table: [VC-Attention](#vcattention) makes each step's attention cheaper instead of removing steps, and is published but unreleased.
+
 Field note from the 2080Ti and 4090 threads: PDD at 4 NFE visibly flattens painted-illustration texture where Turbo `v4-600-ema` still holds it. At the LoRA's intended 8 steps the gap mostly closes.
 
 <a id="turbo"></a>
@@ -639,6 +641,28 @@ Published medians on **8×B300** at 1344×768 / 24 fps with stereo audio, warm, 
 
 ComfyUI wrapper: [`xmarre/ComfyUI-Sol-H3`](https://github.com/xmarre/ComfyUI-Sol-H3) (★21, **GPL-3.0** — note the licence differs from the rest of this list).
 
+<a id="vcattention"></a>
+
+### VC-Attention (low-bit attention — paper only)
+
+> ⚠️ **No code released.** VC-Attention is a published method, not something you can install. There is no repository, no kernel download and no license. It is indexed here because the measurements are on H3 and the technique is orthogonal to the four families above — not because you can run it today.
+
+Rather than cutting steps, this line of work quantizes attention itself. **V-Smooth** reorders value tokens by lightweight online clustering to cut value-quantization error; **ExpCast-FP8** folds the softmax exponential into a single fused multiply-add. QK runs INT8, PV moves to FP8 E4M3. No retraining is required, and the authors state it composes with existing sparse-attention methods.
+
+Published figures, the authors' own, measuring **the attention kernel** against BF16 FlashAttention-4:
+
+| | B200 | B300 |
+| :--- | ---: | ---: |
+| VC-Attention | 1.59× | 1.51× |
+| Nunchux Attention (proprietary) | 1.91× | 1.83× |
+
+End-to-end generation moves considerably less than the kernel does: the paper reports **1.13–1.19×** on datacentre cards and **1.36–1.70×** on workstation cards. Fidelity across 100 prompts is **20.2 dB** mean PSNR against the BF16 reference, compared with 19.9 dB for SageAttention2.
+
+⚠️ **Two things share one name.** *VC-Attention* is the paper. *Nunchux Attention* — the faster row above — is described by its authors as a **proprietary extension** available through [Nunchux](https://nunchux.ai)'s hosted API, not as code.
+
+- Paper: [arXiv 2609.15810](https://arxiv.org/abs/2609.15810), 14 Sep 2026 — Xingyang Li, Dongyun Zou, Shining Zhang, Jiacheng Chen, Haocheng Xi, Lvmin Zhang, Jun-Yan Zhu, Song Han, Zhekai Zhang, Yujun Lin, Muyang Li (MIT, CMU, UC Berkeley, Stanford, NVIDIA)
+- Write-up: [Attention is the video bottleneck](https://www.nunchux.ai/blog/attention-is-the-video-bottleneck)
+
 ### Acceleration nodes
 
 The figures below come from each project's own testing.
@@ -759,6 +783,7 @@ Some community tools modify or patch ComfyUI. Check the project's documentation 
 | MiniMax-H3 Community | `alibaba-pai/MiniMax-H3-Acc-LoRAs` · `alibaba-pai/MiniMax-H3-Fun-Controlnet-Union` · RAVEN Streaming · Krea2 Style |
 | Apache-2.0 (code) · MiniMax-H3 Community (weights) | `OpenVDN/vdn-minimax-h3` |
 | Closed / hosted only | The [H3 Max family](#hosted) — no weights are distributed |
+| No code released | [VC-Attention](#vcattention) — paper only; *Nunchux Attention* is proprietary and hosted |
 | No license stated | `DeepBeepMeep/MiniMax-H3` |
 
 For other projects, check the repository or model card.
