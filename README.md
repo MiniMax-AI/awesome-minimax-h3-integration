@@ -402,6 +402,7 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | [`antirez/h3.c`](https://github.com/antirez/h3.c) | 1652 | Apple Silicon native Metal engine, **MIT**, tutorial in the README. T2V/A, first-last-frame, and ordered Ref2VA references all working. |
 | [`MiniMaxH3ComfyUI/MiniMax-H3-ComfyUI`](https://github.com/MiniMaxH3ComfyUI/MiniMax-H3-ComfyUI) | 101 | Runs the 33B + Turbo LoRA locally with SGLang / vLLM / diffusers as selectable backends; T2V / I2V / R2V templates included. |
 | [`unslothai/unsloth`](https://github.com/unslothai/unsloth) | 70709 | Lists MiniMax-H3 among the models it can run and train. |
+| [`komikndr/raylight`](https://github.com/komikndr/raylight) | 461 | Multi-GPU ComfyUI runtime with native **MiniMax H3** support. Uses **Unified Sequence Parallelism (USP)** via xDiT to split image/video sequence computation across GPUs. With Ray workers manage the distributed execution. |
 
 <a id="nodes"></a>
 <a id="recipes"></a>
