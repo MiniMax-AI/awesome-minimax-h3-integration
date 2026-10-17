@@ -473,11 +473,12 @@ H3 prompts have a fixed three-part structure, inline `<Picture X>` / `<Video X>`
 
 ### Agent skills
 
-Skill packages that let a coding agent drive H3 without the ComfyUI canvas. They differ in how far they take you, and are listed here from the most complete: one carries a brief through to a finished file, one drives a local ComfyUI, and the rest write the prompt and hand it back for you to run.
+Skill packages that let a coding agent drive H3 without the ComfyUI canvas. They differ in how far they take you, and are listed here from the most complete: two carry a brief through to a finished file, one drives a local ComfyUI, and the rest write the prompt and hand it back for you to run.
 
 | Skill repo | Runs against | What it does |
 | :--- | :--- | :--- |
 | [`awesome-minimax-h3`](https://github.com/joeVenner/awesome-minimax-h3) | Hosted API | Carries a brief through to a finished file against the hosted MiniMax API: submit, poll with backoff, resolve the returned `file_id`, then post-process with `ffmpeg`. Reports that the documented `/v2/…/query` polling form returns 404 and gives `GET /v1/query/video_generation` as the working call. Three `SKILL.md` packages — `minimax-video` for H3, plus Speech 2.8 and Music 3.0 skills that compose with it. Needs a `MINIMAX_API_KEY`, not local weights. MIT. |
+| [`okaypic-video-skill`](https://github.com/okaypic/okaypic-video-skill) | Hosted API (okaypic) | Carries a prompt through to a finished, captioned multi-shot episode: shot list, GPT/Gemini character and location reference sheets, two H3 takes per shot with generated dialogue and 5-frame contact sheets, a local timeline editor, and an `ffmpeg` final cut with burned-in English/Chinese captions and loudness levelling. Resumable batches that quote only what is left to render. Works from Claude Code and Codex (`SKILL.md`). Needs an `OKAYPIC_API_KEY`, not local weights. MIT. |
 | [`ComfyUI-Agent-Kit`](https://github.com/SlavaSexton/ComfyUI-Agent-Kit) | Local ComfyUI | Drives a local ComfyUI end to end from Claude Code, Codex, Gemini CLI, or Qwen Code — workflow building, hardware-aware model selection, multi-shot video. Ships a standalone H3 skill among its 581 templates. Apache-2.0. |
 | [`Minimax-H3-Prompt-AgentSkill`](https://github.com/benjiyaya/Minimax-H3-Prompt-AgentSkill) | Prompt only | Builds a formatted H3 prompt from your media and idea, then hands it back for you to run. No license stated. |
 | [`minimax-h3-opencode-skills`](https://github.com/unknowlei/minimax-h3-opencode-skills) | Prompt only | OpenCode skill suite covering directing, routing, multi-shot planning, prompt generation, and review. MIT. |
