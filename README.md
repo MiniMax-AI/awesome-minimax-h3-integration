@@ -756,6 +756,16 @@ These projects are the main open-source options for serving H3 outside a ComfyUI
 
 Access is through [fal](https://fal.ai) and through the ComfyUI **Partner Nodes**, which call the hosted API from inside a normal ComfyUI graph. Announcements come from [@Hailuo_AI](https://x.com/Hailuo_AI) and [@ComfyUI](https://x.com/ComfyUI).
 
+<a id="dedicated"></a>
+
+### Dedicated deployment
+
+A private host that runs open H3 weights for one company. Use it when you need full concurrency, your own fine-tuned weights, or data that stays inside one deployment.
+
+| Provider | What it offers |
+| :--- | :--- |
+| [Nuva Lab](https://nuvalab.ai/minimax-h3-dedicated-deployment/) | Dedicated MiniMax H3 and FastH3 hosts. The standard host has 8× RTX PRO 6000; B200, B300 and GB200 hosts on request. Runs customer fine-tuned weights. Holds a MiniMax authorization for H3 deployments that serve US companies. One of the two FastH3-Omni preview launch partners, with Reactor. Cost and speed notes: [self-hosting cost](https://nuvalab.ai/blog/minimax-h3-api-price-vs-self-hosting/), [VRAM and GPU requirements](https://nuvalab.ai/blog/run-minimax-h3-locally-gpu-vram-requirements/). |
+
 <a id="compat"></a>
 
 ## Compatibility & Licensing
