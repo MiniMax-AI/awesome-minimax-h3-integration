@@ -406,6 +406,9 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | [`komikndr/raylight`](https://github.com/komikndr/raylight) | 473 | Multi-GPU ComfyUI runtime with native **MiniMax H3** support. Uses **Unified Sequence Parallelism (USP)** via xDiT to split image/video sequence computation across GPUs; Ray workers manage distributed execution. Apache-2.0. |
 | [`fluxmatrix/h3-flash`](https://github.com/fluxmatrix/h3-flash) | 5 | H3 inference scripts and a resident web demo for **8×B200**, with Ulysses sequence parallelism, compiled / parallel VAE decoding, and fused kernels. FLASH mode additionally uses LightX2V Turbo4 and changes the sampling trajectory. Published warm end-to-end benchmark protocol and results; Apache-2.0 code, model terms apply separately. |
 | [`slogonomo/sol-h3-studio`](https://github.com/slogonomo/sol-h3-studio) | 1 | Unofficial web studio, queue, HTTP API and CLI / MCP client for NVIDIA Sol-H3-Spark on **one DGX Spark**. Requires about **110 GiB free unified memory** and **300 GB disk**; patches the upstream pipeline. Portrait and non-5-second modes extend NVIDIA's validated recipe. Apache-2.0 code; H3 and LTX-2.5 weights have separate terms. |
+| [`TorchTPU + Diffusers`](https://huggingface.co/docs/diffusers/main/optimization/tpu) | — | Native PyTorch TPU inference with eager, `torch.compile` and tensor parallelism. Hugging Face publishes an [H3 video/audio example](https://huggingface.co/blog/hf-torchtpu) on **Cloud TPU v6e-4**, TP=4, bf16, batch 1. [TorchTPU code](https://github.com/google-pytorch/torch_tpu) is Apache-2.0 with third-party notices; model terms apply separately. |
+| [`ddalcu/mlx-serve`](https://github.com/ddalcu/mlx-serve) | — | Native local app/server for **Apple silicon**; [v26.10.3](https://github.com/ddalcu/mlx-serve/blob/main/CHANGELOG.md) adds FastH3 Omni reference-picture video with synchronized audio in **8 steps** and image-aware prompt enhancement. The Mac app requires **macOS 26.2+**. MIT code; model terms apply separately. |
+| [`FlashML-org/FreeVideo`](https://github.com/FlashML-org/FreeVideo) | — | Local ComfyUI workspace and launchers built on **VDN-H3**, with a documented **8 GB VRAM / 16 GB RAM** path, community LoRAs, and Windows/Linux support. [Apple silicon support](https://github.com/FlashML-org/FreeVideo/blob/main/docs/Mac.md) is experimental. Apache-2.0 code; H3 Community model terms apply. |
 
 <a id="nodes"></a>
 <a id="recipes"></a>
@@ -427,6 +430,8 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | [`ComfyUI-H3-FunControl`](https://github.com/wyzborrero/ComfyUI-H3-FunControl) ![Conditioning][cat-cond] | 34 | Loads [`MiniMax-H3-Fun-Controlnet-Union`](#funcontrol) and exposes `control_context_scale` plus the Canny / Depth / HED / MLSD / Pose preprocessors and the inpaint mask path. Apache-2.0. Core ComfyUI support is still a draft PR, so this is the working route today. |
 | [`OpenH3-IR`](https://github.com/ruashots/open-h3-ir) ![Conditioning][cat-cond] | 19 | The ComfyUI side of OpenH3-IR (see [Prompting](#recipes-prompt)), using its Context-IR service from the same repo, on a model you already run. Drop your pictures, clips and sounds on one panel, name them, then mention them by name in the sentence. The nodes and the service are one tool listed twice, not two projects. |
 | [`ComfyUI-FeiHou-Easy-H3`](https://github.com/FX-FeiHou/ComfyUI-FeiHou-Easy-H3) ![Conditioning][cat-cond] | 66 | Fork of MiniMaxH3-Easy with embedded 9-image / 3-video / 3-audio reference slots, saved media, prompt expansion and RefMod inputs. Experimental streamed-block mode must not be stacked with `ModelAttentionBackend / comfy kitchen attention`. **GPL-3.0**, with upstream attribution and retained third-party licenses. |
+| [`VPack`](https://github.com/zechengtang/VPack) ![Conditioning][cat-cond] | — | Compresses encoded reference-video conditioning in H3 **Ref2VA** to reduce reference tokens. Independent of Spark-H3, with adjustable compression and a published baseline comparison; requires **ComfyUI 0.38.0+** and reference video in `minimax_refs`. Apache-2.0. |
+| [`TARA-H3`](https://github.com/alisson-anjos/ai-toolkit/tree/tara-h3-v0.1.2/research/tara-h3) ![Conditioning][cat-cond] | — | **Experimental** temporal alignment of native Ref2VA video-reference attention, with a technical report, implementation and examples. GPU compatibility and quality remain under evaluation; the dedicated step-1000 TARA LoRA was retired and is not a recommended checkpoint. MIT repository code; upstream component and model terms apply separately. |
 
 ### Upscaling, loading & repair
 
@@ -437,6 +442,7 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | [`Comfyui_Minimax_h3_latent_Upscaler`](https://github.com/LBH-123-AI/Comfyui_Minimax_h3_latent_Upscaler) ![Upscaling][cat-upscale] | 151 | **Learned** neural upscaler for H3's 24-channel latents — generate at low resolution, upscale the latent in place, then refine at target resolution, skipping the `decode → pixel upscale → encode` round-trip through the ~5B VAE and the ghosting that naive latent interpolation introduces. Continuous **1.0–4.0×** scale. [Checkpoints on HF](https://huggingface.co/LBH-123-AI/Minimax_h3_latent_Upscaler) (bf16/fp16 ~691 MB, fp32 ~1.38 GB, Apache-2.0) with I2V and R2V example workflows; trained on ~80k paired samples. |
 | [`ComfyUI-H3VAE_TRT`](https://github.com/lihaoyun6/ComfyUI-H3VAE_TRT) ![Acceleration][cat-accel] | 212 | ONNX / TensorRT replacement for H3's ~5B video VAE — the decode stage, not the DiT. The author reports **up to 1.7×** on VAE decode. Apache-2.0, released 2026-09-01. Engines are built per GPU on first run. |
 | [`ComfyUI-INT8-Fast`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) ![Acceleration][cat-accel] | 286 | **Largely superseded** as INT8 is now native in ComfyUI. Its remaining value is `convert_comfy_quant.py`; see [Compatibility](#compat). |
+| [`ComfyUI-H3-ResCascade`](https://github.com/tazmannner/ComfyUI-H3-ResCascade) ![Upscaling][cat-upscale] | — | H3 Hires Fix nodes and example workflows built on LBH's latent upscaler: refine a roughly **1 MP** render to **1080p/1440p** while retaining the first-pass audio. Tested by the author on **RTX 5090 32 GB**; long clips need substantial system RAM. MIT. |
 
 <a id="wf"></a>
 <a id="wf-comfyui"></a>
@@ -494,14 +500,16 @@ Also relevant: [`ComfyUI-PainterNodes`](https://github.com/princepainter/ComfyUI
 
 Three levers stack: **fewer steps**, **cheaper steps**, and — newest — **a cheaper model**, where the architecture itself changes rather than the schedule. Check your PyTorch build first; an outdated CUDA build commonly causes slow generations.
 
-Four acceleration families now exist, and they are alternatives to each other, not a stack — load one, not several.
+Choose the checkpoint or adapter, sampler and schedule as one recipe. Do not stack distillation adapters unless the project explicitly supports the combination.
 
 | Family | Steps | Comes from | Pick it when |
 | :--- | :---: | :--- | :--- |
 | [Turbo](#turbo) | 4–8 | LightX2V DMD distillation, plus community re-bakes | You want the most tested option with the widest checkpoint choice. |
 | [PDD](#pdd) | 8 | Alibaba PAI, on NVIDIA's Parallel Decoding Distillation | You want a single official-ish 8-step LoRA per variant and native ComfyUI loading. |
-| [FastH3](#fasth3) | 4 / 8 | FastVideo, video sparse attention + data-free distillation | 4-step preview, 8-step V2, or experimental pruned Trim; choose the checkpoint and runtime for your hardware. |
+| [FastH3](#fasth3) | 4 / 8 | FastVideo, distilled H3 checkpoints and optimized runtimes | Preview, V2 and Trim for T2VA; [Omni](#fasth3-omni) for image/video/audio-reference generation. Choose the checkpoint and runtime together. |
 | [VDN](#vdn) | 8 or 50 | OpenVDN, hybrid linear/softmax attention | You want an architectural speedup rather than a step-count trick, and have the disk for it. |
+| [PTD](#ptd) | 4 / 6 | EPFL VITA, Parametric Trajectory Distillation | A dedicated trajectory-distillation recipe; native ComfyUI validation currently covers four-step T2V with audio. |
+| [DMAD](#dmad) | 4 | Distribution Matching as Adversarial Distillation | Four-step T2VA LoRAs with Diffusers, ComfyUI workflows and public training code. |
 
 Attention-level work sits outside that table: [VC-Attention](#vcattention) makes each step's attention cheaper instead of removing steps, and is published but unreleased.
 
@@ -590,10 +598,11 @@ Released under the MiniMax-H3 Community License, trained and served through [`ai
 ComfyUI node: [`Jalen-Brunson/ComfyUI-MiniMax-H3-PDD-Acc`](https://github.com/Jalen-Brunson/ComfyUI-MiniMax-H3-PDD-Acc) (★94, Apache-2.0) — use it if your ComfyUI predates LoRA-bank support.
 
 <a id="fasth3"></a>
+<a id="fasth3-4-step-preview-8-step-v2--trim"></a>
 
-### FastH3 (4-step preview, 8-step V2 & Trim)
+### FastH3 (preview, V2, Trim & Omni)
 
-[FastVideo](https://github.com/hao-ai-lab/FastVideo) combines **video sparse attention (VSA)** with step distillation. The original 4-step preview remains available; the newer V2 and experimental Trim lines use eight steps. These checkpoints target **text-to-audio-video**; do not assume distilled FL2VA or Ref2VA support.
+[FastVideo](https://github.com/hao-ai-lab/FastVideo) combines **video sparse attention (VSA)** with step distillation. The original 4-step preview remains available; V2 and experimental Trim use eight steps and target **text-to-audio-video**, without distilled FL2VA or Ref2VA support. The separate [Omni release](#fasth3-omni) adds eight-evaluation reference-conditioned video and audio generation.
 
 | Model | Downloads | Note |
 | :--- | ---: | :--- |
@@ -608,6 +617,28 @@ FastVideo also publishes MLX INT8 and INT4 builds for Apple Silicon; check the [
 * [FastH3 8-Step V2](https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2) - Eight-forward, data-free DMD2 checkpoint with 80% VSA sparsity. Requires FastVideo's VSA-H3 backend and the checkpoint's trained schedule (video shift 10, not base H3's 12). T2VA only; FL2VA and Ref2VA were not distilled. Weights use the MiniMax H3 Community License.
 * [FastH3 Trim NVFP4](https://huggingface.co/FastVideo/FastVideo-FastH3-Trim-8-Step-NVFP4) - Experimental eight-step T2VA model retaining 42 of 50 transformer blocks, with rank-16 AdaLN compression. The NVFP4 transformer is 11.1 GiB and targets Blackwell GPUs / DGX Spark; pruning trades quality for size and speed. Check the model and component terms separately from FastVideo's Apache-2.0 code license.
 * [Consumer-hardware recipes and measurements](https://haoailab.com/blogs/fasth3-rtx/) - October 6 release covering NVFP4 on RTX 5090 / RTX PRO 6000 / DGX Spark, FP8 on RTX 4090, and INT6 through MLX on Apple Silicon. The reported 8 GB Trim result uses **an RTX 4090 capped to 8 GB**, not a physical 8 GB card: 82.0 s for a 5 s, 832×480 clip with audio, warm end-to-end through MP4 export; the authors expect real lower-memory cards to be slower.
+
+<a id="fasth3-omni"></a>
+
+#### FastH3 Omni — reference-conditioned video and audio
+
+* [FastH3-Omni 8-Step V1](https://huggingface.co/FastVideo/FastVideo-FastH3-Omni-8-Step-V1) - BF16 release checkpoint using **eight transformer evaluations** with ordered image, video and audio references. Requires **at least one image or video**; accepts up to 9 images, 3 videos and 3 audio clips, with at most 12 references total. Outputs 24 FPS video with synchronized 32-kHz stereo audio. MiniMax-H3 Community License.
+* [Release variants and runtime recipes](https://huggingface.co/collections/FastVideo/fasth3-omni) - BF16 server deployment through [UniServe](#uniserve), NVFP4 QAD profiles for Blackwell / DGX Spark / RTX 5090, an FP8 route for RTX 4090, and ComfyUI variants. Keep each recipe's attention, precision and scheduler settings; non-FP4 hardware needs compatible text-encoder components.
+* [Release and matched examples](https://haoailab.com/blogs/fastvideo-omniref-update/) - Published October 20, 2026. The authors compare complete serving recipes on **8×GB200** across 27 matched workloads; timing and quality comparisons apply to those configurations, not every deployment.
+
+<a id="ptd"></a>
+
+### PTD (Parametric Trajectory Distillation)
+
+[`vita-epfl/PTD-inference`](https://github.com/vita-epfl/PTD-inference/tree/release/comfyui-inference) provides standalone **four-/six-step** inference and a native ComfyUI integration, with [PTD weights](https://huggingface.co/epfl-vita/PTD-weights), converters and example workflows. Requires the **original unpruned H3 base** and PTD-specific adapters, sampler and schedule; pruned, quantized, PDD and Turbo variants are unsupported.
+
+The [v0.1.0 release candidate](https://github.com/vita-epfl/PTD-inference/blob/release/comfyui-inference/docs/RELEASE_NOTES.md) validates full-model ComfyUI execution for **four-step T2V with stereo audio**, launched with `--disable-dynamic-vram`. Six-step and image-conditioned ComfyUI generation remain unvalidated on the full model. Apache-2.0 code; MiniMax-H3 Community License weights.
+
+<a id="dmad"></a>
+
+### DMAD (four-step audio-video distillation)
+
+[`Yzmblog/DMAD`](https://github.com/Yzmblog/DMAD) publishes **four-step MiniMax-H3 text-to-audio-video LoRAs**, [Diffusers and native ComfyUI-layout weights](https://huggingface.co/ZhengmingYu/DMAD), example workflows and training code. Use the matching student weights and documented sampler/schedule; this entry covers T2VA, not an Omni-reference checkpoint. The H3 code is Apache-2.0 and the weights use the MiniMax-H3 Community License; the separate image-training subfolder has different terms.
 
 <a id="vdn"></a>
 
@@ -689,6 +720,7 @@ The figures below come from each project's own testing.
 | [`ComfyUI-MiniMax-H3-PDD-Acc`](https://github.com/Jalen-Brunson/ComfyUI-MiniMax-H3-PDD-Acc) ![Acceleration][cat-accel] | 94 | Loads the [PDD](#pdd) 8-step Acc LoRA including its 32 output heads. Apache-2.0. Redundant on a ComfyUI new enough to have LoRA-bank support. |
 | [`ComfyUI-Sol-H3`](https://github.com/xmarre/ComfyUI-Sol-H3) ![Acceleration][cat-accel] | 21 | ComfyUI front end for the [Sol-H3](#solh3) runtime. ⚠️ **GPL-3.0**. |
 | [`TE-Speed-MiniMaxH3`](https://github.com/tl2012tl/TE-Speed-MiniMaxH3) ![Acceleration][cat-accel] | 2 | Block-cache accelerator, by the original TE-Speed author. v3.2 targets current ComfyUI (block prefetch, no core patch), adds a 4/8-step LoRA mode with automatic strategy selection by step count, a long-video (>10 s) cache strategy, and chunked CPU residual transfer; bundles a TE-Speed-compatible fork of the Sol-Attn node. ⚠️ Ships a compiled `nodes.pyd`, no license stated. |
+| [`Spark-H3`](https://github.com/zechengtang/Spark-H3) ![Acceleration][cat-accel] | — | Adaptive block-sparse attention with Diffusers integration and Linux/Windows ComfyUI packages for **SM86 / SM89 / SM120**. Apache-2.0. **Compatibility:** the October 25 notice reports regressions with newer `comfy-kitchen` on some setups and recommends validated **ComfyUI 0.38.x** while investigating; check that notice before upgrading, even though v0.1.5 added 0.42.x support. |
 
 <a id="training"></a>
 
@@ -710,7 +742,7 @@ The figures below come from each project's own testing.
 
 ### Ready-made LoRAs
 
-Acceleration LoRAs live in [Turbo](#turbo). This section covers everything else.
+Acceleration LoRAs and distilled checkpoints live in [Speed](#speed). This section covers everything else.
 
 ### Styles
 
@@ -741,6 +773,7 @@ These projects are the main open-source options for serving H3 outside a ComfyUI
 | [vLLM-Omni](https://github.com/vllm-project/vllm-omni) | First-class H3 serving on the vLLM stack. Since v0.26.0 it ships an official [MiniMax-H3 recipe](https://github.com/vllm-project/vllm-omni/blob/main/recipes/MiniMaxAI/MiniMax-H3.md): OpenAI-compatible `/v1/videos` serving of T2VA, FL2VA, and Ref2VA from one diffusion stage that loads both DiTs and shares the TE and VAEs. Published profiles from 2× RTX 4090/5090 (CPU offload, ≥200 GiB host RAM) up to 4× B300/GB200, plus AMD ROCm. |
 | [EzgiTastan/minimax-h3-gb300-ebpf](https://github.com/EzgiTastan/minimax-h3-gb300-ebpf) | Reproducible GB300 benchmarking and observability companion for SGLang H3 serving: end-to-end stage timing, Ulysses scaling, concurrency, host-side eBPF CUDA tracing, Grace–GPU PMU traffic, energy, and Nsight comparison. Includes retained measurements, figure renderers, and the [full methodology and results](https://ezgitastan.systems/blog/minimax-h3-sglang-gb300-ebpf/). |
 | [vLLM](https://github.com/vllm-project/vllm) | The underlying engine vLLM-Omni extends — vLLM alone serves autoregressive models, not H3's DiT. Deploy H3 through vLLM-Omni; keep plain vLLM for the text-model side of your stack (e.g. a prompt-rewriter endpoint). |
+| <a id="uniserve"></a>[UniServe](https://github.com/hao-ai-lab/uniserve) | FastH3 T2VA and **FastH3-Omni Ref2VA** HTTP serving, with a Rust admission/scheduling server and Python GPU workers. Ships **1–8 GPU** deployment recipes and [latency/throughput evaluation](https://github.com/hao-ai-lab/uniserve/blob/main/docs/minimax_h3/evaluation.md) on GB200, H200 and RTX PRO 6000. Requires Linux, NVIDIA Hopper/Blackwell and CUDA 13. Apache-2.0 code; model terms apply separately. |
 
 <a id="hosted"></a>
 
