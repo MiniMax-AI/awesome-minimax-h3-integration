@@ -30,6 +30,7 @@ This navigation guide is not a complete compatibility list.
 | Use the hosted model | [Hosted H3 Max](#hosted) |
 | Fine-tune it | [Training & LoRAs](#training) |
 | Serve it as an API | [Serving H3](#partners) |
+| Run it on a dedicated host | [Dedicated deployment](#dedicated) — a private H3 / FastH3 host for one company |
 | Run on Apple Silicon | [`antirez/h3.c`](https://github.com/antirez/h3.c) |
 
 <a id="models"></a>
@@ -625,6 +626,7 @@ FastVideo also publishes MLX INT8 and INT4 builds for Apple Silicon; check the [
 * [FastH3-Omni 8-Step V1](https://huggingface.co/FastVideo/FastVideo-FastH3-Omni-8-Step-V1) - BF16 release checkpoint using **eight transformer evaluations** with ordered image, video and audio references. Requires **at least one image or video**; accepts up to 9 images, 3 videos and 3 audio clips, with at most 12 references total. Outputs 24 FPS video with synchronized 32-kHz stereo audio. MiniMax-H3 Community License.
 * [Release variants and runtime recipes](https://huggingface.co/collections/FastVideo/fasth3-omni) - BF16 server deployment through [UniServe](#uniserve), NVFP4 QAD profiles for Blackwell / DGX Spark / RTX 5090, an FP8 route for RTX 4090, and ComfyUI variants. Keep each recipe's attention, precision and scheduler settings; non-FP4 hardware needs compatible text-encoder components.
 * [Release and matched examples](https://haoailab.com/blogs/fastvideo-omniref-update/) - Published October 20, 2026. The authors compare complete serving recipes on **8×GB200** across 27 matched workloads; timing and quality comparisons apply to those configurations, not every deployment.
+* Built by FastVideo in collaboration with [Nuva Lab](https://nuvalab.ai/fasth3/). Per the [model card](https://huggingface.co/FastVideo/FastVideo-FastH3-Omni-8-Step-V1), Nuva Lab co-developed the model and defined and curated the omni reference dataset. For a managed host, see [Dedicated deployment](#dedicated).
 
 <a id="ptd"></a>
 
@@ -765,7 +767,7 @@ Acceleration LoRAs and distilled checkpoints live in [Speed](#speed). This secti
 
 ## Serving H3
 
-These projects are the main open-source options for serving H3 outside a ComfyUI workflow. SGLang and vLLM-Omni both ship official, hardware-verified H3 recipes; pick by ecosystem and by which published GPU profile matches your hardware.
+These projects are the main open-source options for serving H3 outside a ComfyUI workflow. SGLang and vLLM-Omni both ship official, hardware-verified H3 recipes; pick by ecosystem and by which published GPU profile matches your hardware. For a hosted API, see [Hosted H3 Max](#hosted); for a managed private host, see [Dedicated deployment](#dedicated).
 
 | Project | Where it fits |
 | :--- | :--- |
@@ -797,7 +799,7 @@ A private host that runs open H3 weights for one company. Use it when you need f
 
 | Provider | What it offers |
 | :--- | :--- |
-| [Nuva Lab](https://nuvalab.ai/minimax-h3-dedicated-deployment/) | Dedicated MiniMax H3 and FastH3 hosts. The standard host has 8× RTX PRO 6000; B200, B300 and GB200 hosts on request. Runs customer fine-tuned weights. Holds a MiniMax authorization for H3 deployments that serve US companies. One of the two FastH3-Omni preview launch partners, with Reactor. Cost and speed notes: [self-hosting cost](https://nuvalab.ai/blog/minimax-h3-api-price-vs-self-hosting/), [VRAM and GPU requirements](https://nuvalab.ai/blog/run-minimax-h3-locally-gpu-vram-requirements/). |
+| [Nuva Lab](https://nuvalab.ai/minimax-h3-dedicated-deployment/) | Dedicated MiniMax H3 and FastH3 hosts. The standard host has 8× RTX PRO 6000; B200, B300 and GB200 hosts on request. Runs customer fine-tuned weights. Holds a MiniMax authorization for H3 deployments that serve US companies. Runs FastH3-Omni on dedicated hosts, with fine-tuning on customer data. FastH3 credits: co-developed [FastH3-Omni](https://huggingface.co/FastVideo/FastVideo-FastH3-Omni-8-Step-V1) with FastVideo and curated its omni reference dataset; credited for production grounding on the [4-step preview](https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-VSA-DataFree) and [8-Step V2](https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2) model cards; [UniServe](https://haoailab.com/blogs/uniserve-fasth3/) serves production traffic at Nuva Lab and ran its benchmarks on Nuva Lab hardware. FastH3 overview: [nuvalab.ai/fasth3](https://nuvalab.ai/fasth3/). Cost and speed notes: [self-hosting cost](https://nuvalab.ai/blog/minimax-h3-api-price-vs-self-hosting/), [VRAM and GPU requirements](https://nuvalab.ai/blog/run-minimax-h3-locally-gpu-vram-requirements/). |
 
 <a id="compat"></a>
 
@@ -861,7 +863,8 @@ More specific thanks go to:
 * [`Kijai`](https://github.com/kijai/ComfyUI-SolAttn_triton) for the NVIDIA Sol-Attn implementation and benchmark notes.
 * [Alibaba PAI](https://huggingface.co/alibaba-pai) and [`aigc-apps/VideoX-Fun`](https://github.com/aigc-apps/VideoX-Fun) for the PDD 8-step Acc LoRAs and the Fun ControlNet-Union branch.
 * [OpenVDN](https://github.com/OpenVDN/vdn-minimax-h3) for publishing Video Delta Net's training code alongside the weights.
-* [FastVideo](https://huggingface.co/FastVideo) for the FastH3 4-step preview line and its data-free distillation recipe.
+* [FastVideo](https://huggingface.co/FastVideo) for the FastH3 line (4-step preview, V2, Trim and Omni), its data-free distillation recipe, and UniServe.
+* [Nuva Lab](https://nuvalab.ai/fasth3/) for the production grounding behind FastH3, the FastH3-Omni co-development and reference dataset, and the production hardware behind the UniServe benchmarks.
 * [`IAmIronMan42`](https://github.com/IAmIronMan42/MiniMax-H3-FineTuning) for the training work and the documented fixes.
 * [Salvatore Sanfilippo (antirez)](https://github.com/antirez) for the standalone H3 C/Metal inference engine.
 * Every quantizer and workflow maintainer represented above. Their files, testing time, and write-ups make local H3 use much easier.
