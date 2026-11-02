@@ -411,6 +411,10 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | [`ddalcu/mlx-serve`](https://github.com/ddalcu/mlx-serve) | — | Native local app/server for **Apple silicon**; [v26.10.3](https://github.com/ddalcu/mlx-serve/blob/main/CHANGELOG.md) adds FastH3 Omni reference-picture video with synchronized audio in **8 steps** and image-aware prompt enhancement. The Mac app requires **macOS 26.2+**. MIT code; model terms apply separately. |
 | [`FlashML-org/FreeVideo`](https://github.com/FlashML-org/FreeVideo) | — | Local ComfyUI workspace and launchers built on **VDN-H3**, with a documented **8 GB VRAM / 16 GB RAM** path, community LoRAs, and Windows/Linux support. [Apple silicon support](https://github.com/FlashML-org/FreeVideo/blob/main/docs/Mac.md) is experimental. Apache-2.0 code; H3 Community model terms apply. |
 | [`drawthingsai/draw-things-community`](https://github.com/drawthingsai/draw-things-community) | 603 | Engine behind the [Draw Things](https://drawthings.ai) app and `draw-things-cli` on **Apple silicon**: a native Swift / Metal implementation. Runs **FL2VA** (T2VA, first frame, first/last frame), **Ref2VA** with image and audio references, and **FastH3 Omni** from converted 8-, 6- and 4-bit weights. It can split work between the GPU and the Neural Engine, and imports H3 LoRAs in diffusers or ComfyUI layout. A [first-party benchmark](https://releases.drawthings.ai/p/harvest-season-new-hardware-new-inference) measures a 1024×512, 124-frame, 20-step clip at **201.87 s** end-to-end on M5 Ultra, vs 246.79 s for the fastest other engine tested — see [Reported environments](#compat-env). GPL-3.0 code; model terms apply separately. |
+| [`Openjutsu`](https://github.com/D3voz/openjutsu) | — | Local Next.js/ComfyUI app for H3 character and object swaps, combining SAM 3.1 tracking, visual prompt generation and editable workflows. Requires ComfyUI 0.41.2+, custom nodes and separate model downloads; the author reports an RTX 4060 Ti 16 GB / 64 GB RAM setup using INT8 streaming. MIT app; component and model terms apply separately. |
+| [`H3 Motion`](https://github.com/PxTicks/h3-motion) | — | React/ComfyUI editor for keyframed subject motion with **Time-to-Move** and masked video-region regeneration with audio controls. Requires [ComfyUI-vlo](https://github.com/PxTicks/ComfyUI-vlo) 0.3.0+, Comfy Kitchen INT8 attention and matching weights. Tested with ComfyUI v0.41.0-18 and WSL; the native Windows launcher remains untested. AGPL-3.0 code; model terms apply separately. |
+| [`MiniMax-H3 Studio`](https://github.com/zxcHolmes/minimax-h3-studio) | — | Self-hosted web/API studio importing ComfyUI as a Python library, with a persistent FIFO queue and resident models, including FastH3 and Pika H3 Flex. Requires Linux, NVIDIA GPU and a separate ComfyUI installation; developed on RTX 4090 24 GB, with 64 GB+ system RAM recommended. Apache-2.0 code; ComfyUI and model terms apply separately. |
+| [`Tiiny Studio`](https://github.com/thezolon/tiiny-studio) | — | Desktop/Docker media app for **Tiiny Pocket** hardware. [v0.4.0](https://github.com/thezolon/tiiny-studio/releases/tag/v0.4.0) adds H3-Turbo text-/image-to-video with sound and a persistent queue. Inference runs on the Tiiny device; the author tested Windows x64 and amd64 Docker, with other desktop builds smoke-tested. Apache-2.0 code; device and model terms apply separately. |
 
 <a id="nodes"></a>
 <a id="recipes"></a>
@@ -434,6 +438,7 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | [`ComfyUI-FeiHou-Easy-H3`](https://github.com/FX-FeiHou/ComfyUI-FeiHou-Easy-H3) ![Conditioning][cat-cond] | 66 | Fork of MiniMaxH3-Easy with embedded 9-image / 3-video / 3-audio reference slots, saved media, prompt expansion and RefMod inputs. Experimental streamed-block mode must not be stacked with `ModelAttentionBackend / comfy kitchen attention`. **GPL-3.0**, with upstream attribution and retained third-party licenses. |
 | [`VPack`](https://github.com/zechengtang/VPack) ![Conditioning][cat-cond] | — | Compresses encoded reference-video conditioning in H3 **Ref2VA** to reduce reference tokens. Independent of Spark-H3, with adjustable compression and a published baseline comparison; requires **ComfyUI 0.38.0+** and reference video in `minimax_refs`. Apache-2.0. |
 | [`TARA-H3`](https://github.com/alisson-anjos/ai-toolkit/tree/tara-h3-v0.1.2/research/tara-h3) ![Conditioning][cat-cond] | — | **Experimental** temporal alignment of native Ref2VA video-reference attention, with a technical report, implementation and examples. GPU compatibility and quality remain under evaluation; the dedicated step-1000 TARA LoRA was retired and is not a recommended checkpoint. MIT repository code; upstream component and model terms apply separately. |
+| [`ComfyUI-Dials`](https://github.com/matlowai/ComfyUI-Dials) ![Conditioning][cat-cond] | — | Builds reusable **training-free steering vectors** from prompt pairs and applies them to H3 conditioning. Includes motion/style dials and workflows for native ComfyUI H3 and Pika Flex; use the matching model and workflow dependencies. AGPL-3.0 code; released dial weights use the H3 Community License. |
 
 ### Upscaling, loading & repair
 
@@ -445,6 +450,16 @@ Diffs the **112 keys shared** between the `ref2va` and `fl2va` weights and store
 | [`ComfyUI-H3VAE_TRT`](https://github.com/lihaoyun6/ComfyUI-H3VAE_TRT) ![Acceleration][cat-accel] | 212 | ONNX / TensorRT replacement for H3's ~5B video VAE — the decode stage, not the DiT. The author reports **up to 1.7×** on VAE decode. Apache-2.0, released 2026-09-01. Engines are built per GPU on first run. |
 | [`ComfyUI-INT8-Fast`](https://github.com/BobJohnson24/ComfyUI-INT8-Fast) ![Acceleration][cat-accel] | 286 | **Largely superseded** as INT8 is now native in ComfyUI. Its remaining value is `convert_comfy_quant.py`; see [Compatibility](#compat). |
 | [`ComfyUI-H3-ResCascade`](https://github.com/tazmannner/ComfyUI-H3-ResCascade) ![Upscaling][cat-upscale] | — | H3 Hires Fix nodes and example workflows built on LBH's latent upscaler: refine a roughly **1 MP** render to **1080p/1440p** while retaining the first-pass audio. Tested by the author on **RTX 5090 32 GB**; long clips need substantial system RAM. MIT. |
+| [`ComfyUI Open-H3 Regenerate`](https://github.com/rdh9616/ComfyUI-Open-H3-Regenerate) ![Upscaling][cat-upscale] | — | Community nodes and workflows for [NVIDIA's three-step draft refiner](#open-h3-regenerate), including its merged LoRA, fast VAE decoder and saved-latent recovery. Requires native H3 ComfyUI and the LBH upscaler node. Tested on Windows / RTX PRO 5000 72 GB; this is not a minimum VRAM claim. Apache-2.0 code; model terms apply separately. |
+| [`Tessera`](https://github.com/hashu786/ComfyUI-Tessera) ![Upscaling][cat-upscale] | — | Spatially tiled, temporally chunked H3 video refinement with streamed VAE encode/decode, tile planning, optional detail anchors and saved-latent recovery. Uses H3 Ref2VA and the LMS detail LoRA; a general minimum-memory configuration is not established. MIT code; model and component terms apply separately. |
+
+<a id="open-h3-regenerate"></a>
+
+#### Open-H3-Regenerate-2K
+
+NVIDIA's [code](https://github.com/NVlabs/Sana/tree/sol-engine/models/Open-H3-Regenerate-2K) and [weights](https://huggingface.co/Efficient-Large-Model/Open-H3-Regenerate-2K) refine an **existing low-resolution H3 draft** to **2560×1440** in three steps, using LBH latent upscaling, a refiner merged with LightX2V Turbo / LMS Sharp, and a distilled **StreamRender-H3 VAE decoder**. This is a refinement pass, not three-step generation from scratch; the default upstream audio stream is silence.
+
+The standard dense reference and SoL-Engine paths have separate requirements. The optimized SoL path uses about **150 GB VRAM** on B200/GB200; the community ComfyUI port above has its own tested configuration. Refiner, fast VAE and H3 base weights use the H3 Community License; LBH, LightX2V and LMS components retain their own terms.
 
 <a id="wf"></a>
 <a id="wf-comfyui"></a>
@@ -509,9 +524,10 @@ Choose the checkpoint or adapter, sampler and schedule as one recipe. Do not sta
 | [Turbo](#turbo) | 4–8 | LightX2V DMD distillation, plus community re-bakes | You want the most tested option with the widest checkpoint choice. |
 | [PDD](#pdd) | 8 | Alibaba PAI, on NVIDIA's Parallel Decoding Distillation | You want a single official-ish 8-step LoRA per variant and native ComfyUI loading. |
 | [FastH3](#fasth3) | 4 / 8 | FastVideo, distilled H3 checkpoints and optimized runtimes | Preview, V2 and Trim for T2VA; [Omni](#fasth3-omni) for image/video/audio-reference generation. Choose the checkpoint and runtime together. |
+| [Pika H3 Flex](#pika-h3-flex) | 6 | Pika Labs, FL2VA / Ref2VA adapters | Native 480p/768p video with stereo audio and multimodal references, using the released six-step schedule. |
 | [VDN](#vdn) | 8 or 50 | OpenVDN, hybrid linear/softmax attention | You want an architectural speedup rather than a step-count trick, and have the disk for it. |
-| [PTD](#ptd) | 4 / 6 | EPFL VITA, Parametric Trajectory Distillation | A dedicated trajectory-distillation recipe; native ComfyUI validation currently covers four-step T2V with audio. |
-| [DMAD](#dmad) | 4 | Distribution Matching as Adversarial Distillation | Four-step T2VA LoRAs with Diffusers, ComfyUI workflows and public training code. |
+| [PTD](#ptd) | 4 / 6 | EPFL VITA, Parametric Trajectory Distillation | Re-noised SDE adapters for four-/six-step sampling; full-model ComfyUI validation covers the paper's four-step checkpoint only. |
+| [DMAD](#dmad) | 4 / 8 | Distribution Matching as Adversarial Distillation | Four- and eight-step T2VA student LoRAs with Diffusers, ComfyUI workflows and public training code. |
 
 Attention-level work sits outside that table: [VC-Attention](#vcattention) makes each step's attention cheaper instead of removing steps, and is published but unreleased.
 
@@ -629,19 +645,28 @@ FastVideo also publishes MLX INT8 and INT4 builds for Apple Silicon; check the [
 * [Release and matched examples](https://haoailab.com/blogs/fastvideo-omniref-update/) - Published October 20, 2026. The authors compare complete serving recipes on **8×GB200** across 27 matched workloads; timing and quality comparisons apply to those configurations, not every deployment.
 * Built by FastVideo in collaboration with [Nuva Lab](https://nuvalab.ai/fasth3/). Per the [model card](https://huggingface.co/FastVideo/FastVideo-FastH3-Omni-8-Step-V1), Nuva Lab co-developed the model and defined and curated the omni reference dataset. For a managed host, see [Dedicated deployment](#dedicated).
 
+<a id="pika-h3-flex"></a>
+
+### Pika H3 Flex
+
+[Pika H3 Flex](https://github.com/Pika-Labs/Pika-H3-Flex) releases **six-step FL2VA and Ref2VA adapters** for native **480p/768p** video with synchronized stereo audio, with [weights](https://huggingface.co/Pika-Labs/Pika-H3-Flex), a CLI, Diffusers examples and ComfyUI workflows. FL2VA covers text and first/last-frame conditioning; Ref2VA accepts image, video and audio references and requires at least one image or video. Use the released adapter, sampler and schedule together.
+
+The official CLI's [hardware guidance](https://github.com/Pika-Labs/Pika-H3-Flex/blob/main/docs/hardware.md) uses **H100 80 GB** as a validated environment, with CPU offload for larger requests; it runs one request on one GPU. Hosted 1080p/2K/4K refinement, audio stems and prompt enhancement are API extensions, not features of the released local weights. H3 Community License adapters and base weights; Apache-2.0 example code.
+
 <a id="ptd"></a>
 
 ### PTD (Parametric Trajectory Distillation)
 
 [`vita-epfl/PTD-inference`](https://github.com/vita-epfl/PTD-inference/tree/release/comfyui-inference) provides standalone **four-/six-step** inference and a native ComfyUI integration, with [PTD weights](https://huggingface.co/epfl-vita/PTD-weights), converters and example workflows. Requires the **original unpruned H3 base** and PTD-specific adapters, sampler and schedule; pruned, quantized, PDD and Turbo variants are unsupported.
 
-The [v0.1.0 release candidate](https://github.com/vita-epfl/PTD-inference/blob/release/comfyui-inference/docs/RELEASE_NOTES.md) validates full-model ComfyUI execution for **four-step T2V with stereo audio**, launched with `--disable-dynamic-vram`. Six-step and image-conditioned ComfyUI generation remain unvalidated on the full model. Apache-2.0 code; MiniMax-H3 Community License weights.
+The [v0.2.0 release candidate](https://github.com/vita-epfl/PTD-inference/blob/release/comfyui-inference/docs/RELEASE_NOTES.md) adds re-noised `h3_4step_sde` / `h3_6step_sde` recipes for the current Hugging Face checkpoints, which replace the paper's adapters. The authors validate standalone sampling against their research implementation on H100. Full-model ComfyUI validation covers **the paper's four-step T2V checkpoint with stereo audio**, launched with `--disable-dynamic-vram`; the new SDE adapters, six-step and image-conditioned ComfyUI generation remain unvalidated on the full model. Apache-2.0 code; MiniMax-H3 Community License weights.
 
 <a id="dmad"></a>
+<a id="dmad-four-step-audio-video-distillation"></a>
 
-### DMAD (four-step audio-video distillation)
+### DMAD (four-/eight-step audio-video distillation)
 
-[`Yzmblog/DMAD`](https://github.com/Yzmblog/DMAD) publishes **four-step MiniMax-H3 text-to-audio-video LoRAs**, [Diffusers and native ComfyUI-layout weights](https://huggingface.co/ZhengmingYu/DMAD), example workflows and training code. Use the matching student weights and documented sampler/schedule; this entry covers T2VA, not an Omni-reference checkpoint. The H3 code is Apache-2.0 and the weights use the MiniMax-H3 Community License; the separate image-training subfolder has different terms.
+[`Yzmblog/DMAD`](https://github.com/Yzmblog/DMAD) publishes **four- and eight-step MiniMax-H3 text-to-audio-video LoRAs**, [Diffusers and native ComfyUI-layout weights](https://huggingface.co/ZhengmingYu/DMAD), example workflows and training code. The October 29 `8step_full_critic` release is a student trained from scratch for eight-step sampling. Use the matching student weights and documented sampler/schedule; this entry covers T2VA, not an Omni-reference checkpoint. The H3 code is Apache-2.0 and the weights use the MiniMax-H3 Community License; the separate image-training subfolder has different terms.
 
 <a id="vdn"></a>
 
@@ -867,6 +892,7 @@ More specific thanks go to:
 * [OpenVDN](https://github.com/OpenVDN/vdn-minimax-h3) for publishing Video Delta Net's training code alongside the weights.
 * [FastVideo](https://huggingface.co/FastVideo) for the FastH3 line (4-step preview, V2, Trim and Omni), its data-free distillation recipe, and UniServe.
 * [Nuva Lab](https://nuvalab.ai/fasth3/) for the production grounding behind FastH3, the FastH3-Omni co-development and reference dataset, and the production hardware behind the UniServe benchmarks.
+* [Pika Labs](https://github.com/Pika-Labs/Pika-H3-Flex) for the six-step Flex adapters and inference examples; [NVIDIA](https://github.com/NVlabs/Sana/tree/sol-engine/models/Open-H3-Regenerate-2K) for the released draft refiner and fast decoder, building on LBH, LightX2V and LMS components.
 * [`IAmIronMan42`](https://github.com/IAmIronMan42/MiniMax-H3-FineTuning) for the training work and the documented fixes.
 * [Salvatore Sanfilippo (antirez)](https://github.com/antirez) for the standalone H3 C/Metal inference engine.
 * Every quantizer and workflow maintainer represented above. Their files, testing time, and write-ups make local H3 use much easier.
