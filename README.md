@@ -585,6 +585,7 @@ MiniMax-H3-Image is the open-weight image model of the H3 family, with text-to-i
 <tr><td width="56"><img src="https://github.com/BesianSherifaj-AI.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/BesianSherifaj-AI/h3-image-editor">h3-image-editor</a></td><td>Windows workspace on ComfyUI for H3-Image generation, reference edits and masked repair, with Qwen, SAM and SeedVR2 tools.</td></tr>
 <tr><td width="56"><img src="https://github.com/MrJackSpade.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/MrJackSpade/ImageGenerationServer">ImageGenerationServer</a></td><td>Multi-user web front end for a local ComfyUI, with H3-Image generation and edits from up to 16 pictures; non-commercial license.</td></tr>
 <tr><td width="56"><img src="https://github.com/tong-io.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/tong-io/tongflow-modal-minimax-h3-image">tongflow-modal-minimax-h3-image</a></td><td>TongFlow plugin that runs H3-Image generation, editing and fusion of up to 16 references on Modal.</td></tr>
+<tr><td width="56"><img src="https://h3img.com/img/social-logo.png" alt="" width="48"></td><td width="240"><a href="https://h3img.com/">H3Img</a></td><td>Third-party web app for MiniMax-H3-Image generation and reference editing through APIMart, with tested examples and their original prompts.</td></tr>
 </table>
 
 <a id="img-api"></a>
