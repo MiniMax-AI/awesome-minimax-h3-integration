@@ -585,6 +585,7 @@ MiniMax-H3-Image 是 H3 系列中开放权重的图像模型，一个权重同�
 <tr><td width="56"><img src="https://github.com/BesianSherifaj-AI.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/BesianSherifaj-AI/h3-image-editor">h3-image-editor</a></td><td>基于 ComfyUI 的 Windows 编辑工作台，用 H3-Image 生成、参考图编辑和蒙版修补，另有 Qwen、SAM、SeedVR2 等工具。</td></tr>
 <tr><td width="56"><img src="https://github.com/MrJackSpade.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/MrJackSpade/ImageGenerationServer">ImageGenerationServer</a></td><td>多用户网页前端，后端接本地 ComfyUI，可用 H3-Image 生成和最多 16 张图编辑；非商用许可。</td></tr>
 <tr><td width="56"><img src="https://github.com/tong-io.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/tong-io/tongflow-modal-minimax-h3-image">tongflow-modal-minimax-h3-image</a></td><td>TongFlow 插件，在 Modal 上跑 H3-Image 的生成、编辑和最多 16 张图的融合。</td></tr>
+<tr><td width="56"><img src="https://h3img.com/img/social-logo.png" alt="" width="48"></td><td width="240"><a href="https://h3img.com/">H3Img</a></td><td>通过 APIMart 使用 MiniMax-H3-Image 的第三方托管网页工具，提供文生图、参考图编辑以及附原始指令的实测案例。</td></tr>
 </table>
 
 <a id="img-api"></a>
