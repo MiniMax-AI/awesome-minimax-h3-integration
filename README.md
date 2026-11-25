@@ -322,6 +322,7 @@ MiniMax H3 is MiniMax's open-weight model for video with native stereo audio: it
 <tr><td width="56"><img src="https://github.com/blendi-remade.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/blendi-remade/unreel">UNREEL</a></td><td>AI streaming app where a language model writes each episode and H3 Max Turbo on fal renders it shot by shot.</td></tr>
 <tr><td width="56"><img src="https://github.com/ilkerzg.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/ilkerzg/storycast">StoryCast</a></td><td>Turns a topic into a story video, with shots and lip-synced lines from H3 Max on fal.</td></tr>
 <tr><td width="56"><img src="https://github.com/eren23.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/eren23/openflipbook">OpenFlipbook</a></td><td>Clickable picture book where every page is AI-drawn, with optional page animation from H3 Max or H3 Max Turbo on fal.</td></tr>
+<tr><td width="56"><img src="https://github.com/xiaodilj-dev.png?size=96" alt="" width="48"></td><td width="240"><a href="https://qianliu-api-tools.deed.page/#h3-postman">Qianliu H3 Postman collection</a></td><td>Two Postman requests for submitting a MiniMax H3 text-to-video job through Qianliu and checking its status by task ID.</td></tr>
 </table>
 
 <a id="h3-comfyui"></a><a id="nodes"></a><a id="recipes"></a><a id="open-h3-regenerate"></a>

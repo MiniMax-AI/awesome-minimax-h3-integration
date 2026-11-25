@@ -322,6 +322,7 @@ MiniMax H3 是 MiniMax 开放权重的音视频生成模型：以文字、图片
 <tr><td width="56"><img src="https://github.com/blendi-remade.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/blendi-remade/unreel">UNREEL</a></td><td>AI 流媒体应用，大模型写剧集，再由 fal 上的 H3 Max Turbo 逐个镜头生成画面。</td></tr>
 <tr><td width="56"><img src="https://github.com/ilkerzg.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/ilkerzg/storycast">StoryCast</a></td><td>输入主题生成故事视频，镜头和对口型的台词由 fal 上的 H3 Max 生成。</td></tr>
 <tr><td width="56"><img src="https://github.com/eren23.png?size=96" alt="" width="48"></td><td width="240"><a href="https://github.com/eren23/openflipbook">OpenFlipbook</a></td><td>每页都是 AI 插画的翻页书，可选的页面动画由 fal 上的 H3 Max 或 H3 Max Turbo 生成。</td></tr>
+<tr><td width="56"><img src="https://github.com/xiaodilj-dev.png?size=96" alt="" width="48"></td><td width="240"><a href="https://qianliu-api-tools.deed.page/#h3-postman">千流 H3 Postman 请求集合</a></td><td>包含两条 Postman 请求，可通过千流提交 MiniMax H3 文生视频任务，并按任务编号查询状态。</td></tr>
 </table>
 
 <a id="h3-comfyui"></a>
